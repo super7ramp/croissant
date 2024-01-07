@@ -9,8 +9,8 @@ pub fn letter_at(index: usize) -> char {
     LETTERS[index]
 }
 
-/// Returns the index in the alphabet for the given letter in a [None] if given letter does
-/// not belong to the alphabet.
+/// Returns the index in the alphabet for the given letter in a [Some], or [None] if given letter
+/// does not belong to the alphabet.
 pub fn index_of(letter: char) -> Option<usize> {
     LETTERS.binary_search(&letter).map(Some).unwrap_or_default()
 }
@@ -21,7 +21,7 @@ pub fn contains(value: char) -> bool {
 }
 
 /// Returns the size of the alphabet.
-pub fn number_of_letters() -> usize {
+pub const fn number_of_letters() -> usize {
     LETTERS.len()
 }
 

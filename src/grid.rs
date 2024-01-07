@@ -9,7 +9,7 @@ pub const EMPTY: char = '.';
 
 /// A crossword grid.
 #[derive(Debug, PartialEq)]
-struct Grid {
+pub struct Grid {
     rows: Vec<String>,
 }
 
@@ -54,7 +54,6 @@ impl Grid {
     /// it returns an error containing details about the validation failure.
     pub fn from(value: &str) -> Result<Self, String> {
         let rows: Vec<String> = value.split('\n').map(String::from).collect();
-        println!("{:?}", rows);
         Grid::new(rows)
     }
 
@@ -140,6 +139,11 @@ impl Grid {
     pub fn row_count(&self) -> usize {
         self.rows.len()
     }
+
+    /// Returns the number of slots.
+    pub fn slot_count(&self) -> usize {
+        self.slots().len()
+    }
 }
 
 #[cfg(test)]
@@ -222,6 +226,6 @@ mod tests {
         let grid = Grid::from("").unwrap();
         let actual_slots = grid.slots();
         let expected_slots: Vec<Slot> = vec![];
-        assert_eq!(expected_slots, grid.slots());
+        assert_eq!(expected_slots, actual_slots);
     }
 }
