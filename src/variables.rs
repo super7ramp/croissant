@@ -1,6 +1,12 @@
 use crate::alphabet;
 use crate::grid::Grid;
 
+/// The number of values that a cell of a solved grid can take.
+pub const NUMBER_OF_CELL_VALUES: usize = alphabet::letter_count() + 1 /* block */;
+
+/// The numerical representation of a block (the value of a shaded cell).
+pub const BLOCK_INDEX: usize = alphabet::letter_count();
+
 /// Where translation of problem data from/to integer variables occurs.
 ///
 /// There are two kinds of variables:
@@ -9,14 +15,7 @@ use crate::grid::Grid;
 ///   [Self::cell()] for the translation.
 /// - Slot variables: For each pair (slot,word) is associated a variable. They are placed
 ///   "after" the cell variables in the model. See [Self::slot] for the translation.
-
-/// The number of values that a cell of a solved grid can take.
-pub const NUMBER_OF_CELL_VALUES: usize = alphabet::number_of_letters() + 1 /* block */;
-
-/// The numerical representation of a block (the value of a shaded cell).
-pub const BLOCK_INDEX: usize = alphabet::number_of_letters();
-
-struct Variables<'solve_duration> {
+pub struct Variables<'solve_duration> {
     /// The crossword grid
     grid: &'solve_duration Grid,
     /// The number of words in the dictionary
@@ -25,7 +24,7 @@ struct Variables<'solve_duration> {
 
 impl<'solve_duration> Variables<'solve_duration> {
     /// Creates a new instance.
-    fn new(grid: &'solve_duration Grid, word_count: usize) -> Self {
+    pub fn new(grid: &'solve_duration Grid, word_count: usize) -> Self {
         Variables { grid, word_count }
     }
 
@@ -70,11 +69,11 @@ impl<'solve_duration> Variables<'solve_duration> {
     ///     <th>etc.</th>
     ///   </tr>
     /// </table>
-    fn cell(&self, row: usize, column: usize, value: usize) -> usize {
-        row * self.grid.column_count() * NUMBER_OF_CELL_VALUES +
-            column * NUMBER_OF_CELL_VALUES +
-            value +
-            1 // variable must be strictly positive
+    pub fn cell(&self, row: usize, column: usize, value: usize) -> usize {
+        row * self.grid.column_count() * NUMBER_OF_CELL_VALUES
+            + column * NUMBER_OF_CELL_VALUES
+            + value
+            + 1 // variable must be strictly positive
     }
 
     /// Returns the variable associated to the given word at the given slot.

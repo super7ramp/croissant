@@ -21,7 +21,7 @@ pub fn contains(value: char) -> bool {
 }
 
 /// Returns the size of the alphabet.
-pub const fn number_of_letters() -> usize {
+pub const fn letter_count() -> usize {
     LETTERS.len()
 }
 
@@ -64,6 +64,6 @@ mod tests {
 
     #[test]
     fn alphabet_number_of_letters() {
-        assert_eq!(26, number_of_letters())
+        assert_eq!(26, letter_count())
     }
 }
