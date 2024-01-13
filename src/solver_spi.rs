@@ -1,16 +1,16 @@
-/// Definition of a solver.
+/// Definition of a SAT solver.
 ///
 /// The main function to implement is [add_clause]. Other functions contain default implementations
 /// which may be overridden for better performances.
 pub trait Solver {
-    /// Adds the given literals as a *at-least-one* clause.
+    /// Adds the given literals as an *at-least-one* clause, i.e. a disjunction (= or).
     fn add_clause(&mut self, literals: &Vec<i32>);
 
-    /// Adds the given literals as an exactly-one clause.
+    /// Adds the given literals as an *exactly-one* clause.
     ///
-    /// It is equivalent to adding a *at-least-one* and a *at-most-one* clauses. An *at-most-one*
-    /// clause is equivalent to a *at-least-n-minus-one* of the negated literals, which essentially
-    /// is an *at-least-one* clause.
+    /// An *exactly-one* clause is equivalent to an *at-least-one* and a *at-most-one* clauses. An *at-most-one*
+    /// clause is equivalent to an *at-least-n-minus-one* of the negated literals, which essentially is an
+    /// *at-least-one* clause.
     ///
     /// Default implementation creates these corresponding clauses and add them using [add_clause].
     /// Implementors may override this function for better performance.

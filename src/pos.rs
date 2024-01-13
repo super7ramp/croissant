@@ -9,4 +9,10 @@ impl Pos {
     pub fn new(column: usize, row: usize) -> Self {
         Pos { column, row }
     }
+    pub fn row(&self) -> usize {
+        self.row
+    }
+    pub fn column(&self) -> usize {
+        self.column
+    }
 }

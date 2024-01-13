@@ -80,7 +80,7 @@ impl<'solve_duration> Variables<'solve_duration> {
     ///
     /// Slot variable are put after cell variables, so first slot variable corresponds to the number
     /// of cell variables (plus 1 because variables start at 1).
-    fn slot(&self, slot_index: usize, word_index: usize) -> usize {
+    pub fn slot(&self, slot_index: usize, word_index: usize) -> usize {
         self.cell_count() // last cell variable
             + slot_index * self.word_count
             + word_index

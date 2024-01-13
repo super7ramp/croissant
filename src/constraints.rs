@@ -1,4 +1,5 @@
 use crate::grid::Grid;
+use crate::slot::Slot;
 use crate::solver_spi::Solver;
 use crate::variables::{Variables, BLOCK_INDEX, NUMBER_OF_CELL_VALUES};
 use crate::{alphabet, grid};
@@ -19,20 +20,31 @@ use crate::{alphabet, grid};
 ///
 /// Implementation note: Functions here add rules to the solver passed as parameter. Although having
 /// just a factory of constraints, to be applied separately, would be nice, it does not scale in
-/// terms of memory: There are too many literals and clauses. Hence, the choice to add the clauses
+/// terms of memory: There are too many literals and clauses. Hence, the choice to progressively add
+/// the clauses to the solver.
 ///
 struct Constraints<'constraints_construction> {
     grid: &'constraints_construction Grid,
     variables: &'constraints_construction Variables<'constraints_construction>,
+    words: &'constraints_construction Vec<&'constraints_construction str>,
 }
+
+/// The length of the buffer used to store cell literals corresponding to a word in a slot. Most
+/// words/slots should be smaller than this size.
+const CELL_LITERALS_BUFFER_LENGTH: usize = 20;
 
 impl<'constraints_construction> Constraints<'constraints_construction> {
     /// Constructs a new instance.
     fn new(
         grid: &'constraints_construction Grid,
         variables: &'constraints_construction Variables<'constraints_construction>,
+        words: &'constraints_construction Vec<&'constraints_construction str>,
     ) -> Self {
-        Constraints { grid, variables }
+        Constraints {
+            grid,
+            variables,
+            words,
+        }
     }
 
     /// Adds the clauses ensuring that each cell must contain exactly one letter from the alphabet -
@@ -41,7 +53,6 @@ impl<'constraints_construction> Constraints<'constraints_construction> {
         let mut literals_buffer: Vec<i32> = Vec::with_capacity(NUMBER_OF_CELL_VALUES);
         for row in 0..self.grid.row_count() {
             for column in 0..self.grid.column_count() {
-                // TODO check for interruption
                 for letter_index in 0..alphabet::letter_count() {
                     let letter_variable = self.variables.cell(row, column, letter_index) as i32;
                     literals_buffer.push(letter_variable)
@@ -54,13 +65,56 @@ impl<'constraints_construction> Constraints<'constraints_construction> {
         }
     }
 
+    /// Adds the clauses ensuring that each slot must contain exactly one word from the word list to
+    /// the given solver.
+    fn add_one_word_per_slot_clauses_to(&self, solver: &mut dyn Solver) {
+        let mut slot_literals_buffer = Vec::with_capacity(self.words.len());
+        let mut cell_literals_buffer = Vec::with_capacity(CELL_LITERALS_BUFFER_LENGTH);
+        for slot in self.grid.slots() {
+            for word_index in 0..self.words.len() {
+                // TODO check for interruption
+                let word = self.words.get(word_index).unwrap();
+                if word.len() == slot.len() {
+                    let slot_literal = self.variables.slot(slot.index(), word_index) as i32;
+                    slot_literals_buffer.push(slot_literal);
+
+                    self.fill_cell_literals_conjunction(&mut cell_literals_buffer, &slot, word);
+                    solver.add_and(slot_literal, &cell_literals_buffer);
+                    cell_literals_buffer.clear();
+                } // else skip this word since it obviously doesn't match the slot
+            }
+            solver.add_exactly_one(&slot_literals_buffer);
+            slot_literals_buffer.clear();
+        }
+    }
+
+    /// Fills the given vector with the cell literals whose conjunction (= and) is equivalent to the
+    /// slot variable of the given slot and word.
+    ///
+    /// Panics if the given word contains a letter which is not in the [alphabet].
+    fn fill_cell_literals_conjunction(
+        &self,
+        cell_literals: &mut Vec<i32>,
+        slot: &Slot,
+        word: &str,
+    ) {
+        let slot_positions = slot.positions();
+        for (slot_pos, letter) in slot_positions.iter().zip(word.chars()) {
+            let letter_index = alphabet::index_of(letter)
+                .expect(format!("Unsupported character {letter}").as_str());
+            let cell_var = self
+                .variables
+                .cell(slot_pos.row(), slot_pos.column(), letter_index);
+            cell_literals.push(cell_var as i32)
+        }
+    }
+
     /// Adds the clauses ensuring that each prefilled letter/block must be preserved to the given
     /// solver.
     fn add_input_grid_constraints_are_satisfied_clauses_to(&self, solver: &mut dyn Solver) {
         let mut literals_buffer: Vec<i32> = Vec::with_capacity(1);
         for row in 0..self.grid.row_count() {
             for column in 0..self.grid.column_count() {
-                // TODO check for interruption
                 let prefilled_letter = self.grid.letter_at(row, column);
                 let literal = match prefilled_letter {
                     grid::EMPTY => {
@@ -124,8 +178,9 @@ mod test {
     fn constraints_add_one_letter_or_block_per_cell_clauses_to() {
         let mut test_solver = TestSolver::new();
         let grid = Grid::from("...\n...").unwrap();
-        let variables = Variables::new(&grid, 100_000);
-        let constraints = Constraints::new(&grid, &variables);
+        let words = vec![];
+        let variables = Variables::new(&grid, words.len());
+        let constraints = Constraints::new(&grid, &variables, &words);
 
         constraints.add_one_letter_or_block_per_cell_clauses_to(&mut test_solver);
 
@@ -161,14 +216,59 @@ mod test {
             expected_exactly_one_clauses,
             test_solver.exactly_one_clauses
         );
+        assert_eq!(
+            true,
+            test_solver.and_clauses.is_empty(),
+            "Unexpected clauses"
+        );
+    }
+
+    #[test]
+    fn add_one_word_per_slot_clauses_to() {
+        let mut test_solver = TestSolver::new();
+        let grid = Grid::from("...\n#..").unwrap();
+        let words = vec!["ABC", "DEF", "AA", "BB", "CC"];
+        let variables = Variables::new(&grid, words.len());
+        let constraints = Constraints::new(&grid, &variables, &words);
+
+        constraints.add_one_word_per_slot_clauses_to(&mut test_solver);
+
+        assert_eq!(true, test_solver.clauses.is_empty(), "Unexpected clauses");
+        assert_eq!(
+            vec![
+                // For each slot, exactly one word (of the same length)
+                vec![163, 164],      // "ABC" or "DEF" for first across slot
+                vec![170, 171, 172], // "AA" or "BB" or "CC" for second across slot
+                vec![175, 176, 177], // "AA" or "BB" or "CC" for first down slot
+                vec![180, 181, 182], // "AA" or "BB" or "CC" for second down slot
+            ],
+            test_solver.exactly_one_clauses
+        );
+        assert_eq!(
+            HashMap::from([
+                (163, vec![1, 29, 57]), // "ABC" at first across slot <=> 'A' at (0,0) and 'B' at (1,0) and 'C' at (2,0)
+                (164, vec![4, 32, 60]), // "DEF" at first across slot <=> 'D' at (0,0) and 'E' at (1,0) and 'F' at (2,0)
+                (170, vec![82, 109]), // "AA" at second across slot <=> 'A' at (1,1) and 'A' at (2,1)
+                (171, vec![83, 110]), // "BB" at second across slot <=> 'B' at (1,1) and 'B' at (2,1)
+                (172, vec![84, 111]), // "CC" at second across slot <=> 'C' at (1,1) and 'C' at (2,1)
+                (175, vec![28, 109]), // "AA" at first down slot <=> 'A' at (1,0) and 'A' at (1,1)
+                (176, vec![29, 110]), // "BB" at first down slot <=> 'B' at (1,0) and 'B' at (1,1)
+                (177, vec![30, 111]), // "CC" at first down slot <=> 'C' at (1,0) and 'C' at (1,1)
+                (180, vec![55, 136]), // "AA" at second down slot <=> 'A' at (2,0) and 'A' at (2,1)
+                (181, vec![56, 137]), // "BB" at second down slot <=> 'B' at (2,0) and 'B' at (2,1)
+                (182, vec![57, 138]), // "CC" at second down slot <=> 'C' at (2,0) and 'C' at (2,1)
+            ]),
+            test_solver.and_clauses
+        );
     }
 
     #[test]
     fn add_input_grid_constraints_are_satisfied_clauses_to() {
         let mut test_solver = TestSolver::new();
         let grid = Grid::from("A#..#Z").unwrap();
-        let variables = Variables::new(&grid, 100_000);
-        let constraints = Constraints::new(&grid, &variables);
+        let words = vec![];
+        let variables = Variables::new(&grid, words.len());
+        let constraints = Constraints::new(&grid, &variables, &words);
 
         constraints.add_input_grid_constraints_are_satisfied_clauses_to(&mut test_solver);
 
@@ -184,6 +284,11 @@ mod test {
         assert_eq!(
             true,
             test_solver.exactly_one_clauses.is_empty(),
+            "Unexpected clauses"
+        );
+        assert_eq!(
+            true,
+            test_solver.and_clauses.is_empty(),
             "Unexpected clauses"
         );
     }
