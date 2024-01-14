@@ -15,16 +15,16 @@ pub const BLOCK_INDEX: usize = alphabet::letter_count();
 ///   [Self::cell()] for the translation.
 /// - Slot variables: For each pair (slot,word) is associated a variable. They are placed
 ///   "after" the cell variables in the model. See [Self::slot] for the translation.
-pub struct Variables<'solve_duration> {
+pub struct Variables {
     /// The crossword grid
-    grid: &'solve_duration Grid,
+    grid: Grid,
     /// The number of words in the dictionary
     word_count: usize,
 }
 
-impl<'solve_duration> Variables<'solve_duration> {
+impl Variables {
     /// Creates a new instance.
-    pub fn new(grid: &'solve_duration Grid, word_count: usize) -> Self {
+    pub fn new(grid: Grid, word_count: usize) -> Self {
         Variables { grid, word_count }
     }
 
@@ -110,7 +110,7 @@ mod test {
     #[test]
     fn variables_cell() {
         let grid = Grid::from("...\n...\n...").unwrap();
-        let variables = Variables::new(&grid, 100_000 /* does not matter here */);
+        let variables = Variables::new(grid, 100_000 /* does not matter here */);
 
         assert_eq!(1, variables.cell(0, 0, 0));
         assert_eq!(2, variables.cell(0, 0, 1));
@@ -126,7 +126,7 @@ mod test {
     #[test]
     fn variables_slot() {
         let grid = Grid::from("...\n...\n...").unwrap();
-        let variables = Variables::new(&grid, 100_000);
+        let variables = Variables::new(grid, 100_000);
 
         assert_eq!(244, variables.slot(0, 0));
         assert_eq!(245, variables.slot(0, 1));
@@ -141,21 +141,21 @@ mod test {
     #[test]
     fn variables_cell_count() {
         let grid = Grid::from("...\n...\n...").unwrap();
-        let variables = Variables::new(&grid, 100_000 /* does not matter here */);
+        let variables = Variables::new(grid, 100_000 /* does not matter here */);
         assert_eq!(243, variables.cell_count());
     }
 
     #[test]
     fn variables_slot_count() {
         let grid = Grid::from("...\n...\n...").unwrap();
-        let variables = Variables::new(&grid, 100_000);
+        let variables = Variables::new(grid, 100_000);
         assert_eq!(600_000, variables.slot_count());
     }
 
     #[test]
     fn variables_count() {
         let grid = Grid::from("...\n...\n...").unwrap();
-        let variables = Variables::new(&grid, 100_000);
+        let variables = Variables::new(grid, 100_000);
         assert_eq!(600_243, variables.count());
     }
 }

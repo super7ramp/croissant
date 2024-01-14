@@ -8,7 +8,7 @@ pub const BLOCK: char = '#';
 pub const EMPTY: char = '.';
 
 /// A crossword grid.
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Grid {
     rows: Vec<String>,
 }

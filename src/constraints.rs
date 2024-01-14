@@ -1,6 +1,6 @@
 use crate::grid::Grid;
 use crate::slot::Slot;
-use crate::solver_spi::Solver;
+use crate::solver::SolverBuilder;
 use crate::variables::{Variables, BLOCK_INDEX, NUMBER_OF_CELL_VALUES};
 use crate::{alphabet, grid};
 
@@ -23,22 +23,22 @@ use crate::{alphabet, grid};
 /// terms of memory: There are too many literals and clauses. Hence, the choice to progressively add
 /// the clauses to the solver.
 ///
-struct Constraints<'constraints_construction> {
-    grid: &'constraints_construction Grid,
-    variables: &'constraints_construction Variables<'constraints_construction>,
-    words: &'constraints_construction Vec<&'constraints_construction str>,
+pub struct Constraints<'before_solve> {
+    grid: Grid,
+    variables: Variables,
+    words: &'before_solve Vec<&'before_solve str>,
 }
 
 /// The length of the buffer used to store cell literals corresponding to a word in a slot. Most
 /// words/slots should be smaller than this size.
 const CELL_LITERALS_BUFFER_LENGTH: usize = 20;
 
-impl<'constraints_construction> Constraints<'constraints_construction> {
+impl<'before_solve> Constraints<'before_solve> {
     /// Constructs a new instance.
-    fn new(
-        grid: &'constraints_construction Grid,
-        variables: &'constraints_construction Variables<'constraints_construction>,
-        words: &'constraints_construction Vec<&'constraints_construction str>,
+    pub fn new(
+        grid: Grid,
+        variables: Variables,
+        words: &'before_solve Vec<&'before_solve str>,
     ) -> Self {
         Constraints {
             grid,
@@ -49,7 +49,7 @@ impl<'constraints_construction> Constraints<'constraints_construction> {
 
     /// Adds the clauses ensuring that each cell must contain exactly one letter from the alphabet -
     /// or a block - to the given solver.
-    fn add_one_letter_or_block_per_cell_clauses_to(&self, solver: &mut dyn Solver) {
+    pub fn add_one_letter_or_block_per_cell_clauses_to(&self, solver: &mut dyn SolverBuilder) {
         let mut literals_buffer: Vec<i32> = Vec::with_capacity(NUMBER_OF_CELL_VALUES);
         for row in 0..self.grid.row_count() {
             for column in 0..self.grid.column_count() {
@@ -67,7 +67,7 @@ impl<'constraints_construction> Constraints<'constraints_construction> {
 
     /// Adds the clauses ensuring that each slot must contain exactly one word from the word list to
     /// the given solver.
-    fn add_one_word_per_slot_clauses_to(&self, solver: &mut dyn Solver) {
+    pub fn add_one_word_per_slot_clauses_to(&self, solver: &mut dyn SolverBuilder) {
         let mut slot_literals_buffer = Vec::with_capacity(self.words.len());
         let mut cell_literals_buffer = Vec::with_capacity(CELL_LITERALS_BUFFER_LENGTH);
         for slot in self.grid.slots() {
@@ -92,7 +92,7 @@ impl<'constraints_construction> Constraints<'constraints_construction> {
     /// slot variable of the given slot and word.
     ///
     /// Panics if the given word contains a letter which is not in the [alphabet].
-    fn fill_cell_literals_conjunction(
+    pub fn fill_cell_literals_conjunction(
         &self,
         cell_literals: &mut Vec<i32>,
         slot: &Slot,
@@ -111,7 +111,10 @@ impl<'constraints_construction> Constraints<'constraints_construction> {
 
     /// Adds the clauses ensuring that each prefilled letter/block must be preserved to the given
     /// solver.
-    fn add_input_grid_constraints_are_satisfied_clauses_to(&self, solver: &mut dyn Solver) {
+    pub fn add_input_grid_constraints_are_satisfied_clauses_to(
+        &self,
+        solver: &mut dyn SolverBuilder,
+    ) {
         let mut literals_buffer: Vec<i32> = Vec::with_capacity(1);
         for row in 0..self.grid.row_count() {
             for column in 0..self.grid.column_count() {
@@ -137,19 +140,20 @@ impl<'constraints_construction> Constraints<'constraints_construction> {
 
 #[cfg(test)]
 mod test {
+    use crate::solver::Solver;
     use std::collections::HashMap;
 
     use super::*;
 
-    struct TestSolver {
+    struct TestSolverBuilder {
         clauses: Vec<Vec<i32>>,
         exactly_one_clauses: Vec<Vec<i32>>,
         and_clauses: HashMap<i32, Vec<i32>>,
     }
 
-    impl TestSolver {
+    impl TestSolverBuilder {
         fn new() -> Self {
-            TestSolver {
+            TestSolverBuilder {
                 clauses: vec![],
                 exactly_one_clauses: vec![],
                 and_clauses: HashMap::new(),
@@ -157,7 +161,7 @@ mod test {
         }
     }
 
-    impl Solver for TestSolver {
+    impl SolverBuilder for TestSolverBuilder {
         fn add_clause(&mut self, literals: &Vec<i32>) {
             let literals_copy = literals.to_vec();
             self.clauses.push(literals_copy)
@@ -172,15 +176,19 @@ mod test {
             let conjunction_copy = conjunction.to_vec();
             self.and_clauses.insert(literal, conjunction_copy);
         }
+
+        fn build(self) -> Box<dyn Solver<Item=Vec<i32>>> {
+            unimplemented!()
+        }
     }
 
     #[test]
     fn constraints_add_one_letter_or_block_per_cell_clauses_to() {
-        let mut test_solver = TestSolver::new();
+        let mut test_solver = TestSolverBuilder::new();
         let grid = Grid::from("...\n...").unwrap();
         let words = vec![];
-        let variables = Variables::new(&grid, words.len());
-        let constraints = Constraints::new(&grid, &variables, &words);
+        let variables = Variables::new(grid.clone(), words.len());
+        let constraints = Constraints::new(grid, variables, &words);
 
         constraints.add_one_letter_or_block_per_cell_clauses_to(&mut test_solver);
 
@@ -225,11 +233,11 @@ mod test {
 
     #[test]
     fn add_one_word_per_slot_clauses_to() {
-        let mut test_solver = TestSolver::new();
+        let mut test_solver = TestSolverBuilder::new();
         let grid = Grid::from("...\n#..").unwrap();
         let words = vec!["ABC", "DEF", "AA", "BB", "CC"];
-        let variables = Variables::new(&grid, words.len());
-        let constraints = Constraints::new(&grid, &variables, &words);
+        let variables = Variables::new(grid.clone(), words.len());
+        let constraints = Constraints::new(grid, variables, &words);
 
         constraints.add_one_word_per_slot_clauses_to(&mut test_solver);
 
@@ -264,11 +272,11 @@ mod test {
 
     #[test]
     fn add_input_grid_constraints_are_satisfied_clauses_to() {
-        let mut test_solver = TestSolver::new();
+        let mut test_solver = TestSolverBuilder::new();
         let grid = Grid::from("A#..#Z").unwrap();
         let words = vec![];
-        let variables = Variables::new(&grid, words.len());
-        let constraints = Constraints::new(&grid, &variables, &words);
+        let variables = Variables::new(grid.clone(), words.len());
+        let constraints = Constraints::new(grid, variables, &words);
 
         constraints.add_input_grid_constraints_are_satisfied_clauses_to(&mut test_solver);
 

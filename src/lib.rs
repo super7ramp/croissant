@@ -3,5 +3,5 @@ mod constraints;
 mod grid;
 mod pos;
 mod slot;
-mod solver_spi;
+mod solver;
 mod variables;
