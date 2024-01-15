@@ -177,7 +177,7 @@ mod test {
             self.and_clauses.insert(literal, conjunction_copy);
         }
 
-        fn build(self) -> Box<dyn Solver<Item=Vec<i32>>> {
+        fn build(&self) -> Box<dyn Solver<Item = Vec<i32>>> {
             unimplemented!()
         }
     }
