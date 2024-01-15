@@ -15,6 +15,13 @@ pub trait Solver: Iterator<Item = Vec<i32>> {
 /// The main function to implement is [add_clause]. Other functions contain default implementations
 /// which may be overridden for better performances.
 pub trait SolverBuilder {
+    /// Gives a hint about the number of variables. May be implemented to optimize performance.
+    ///
+    /// Default implementation does nothing.
+    fn allocate_variables(&mut self, _variables_count: usize) {
+        // Do nothing by default.
+    }
+
     /// Adds the given literals as an *at-least-one* clause, i.e. a disjunction (= or).
     fn add_clause(&mut self, literals: &Vec<i32>);
 

@@ -1,7 +1,7 @@
 use crate::grid::Grid;
 use crate::slot::Slot;
 use crate::solver::SolverBuilder;
-use crate::variables::{Variables, BLOCK_INDEX, NUMBER_OF_CELL_VALUES};
+use crate::variables::{Variables, BLOCK_INDEX, CELL_VALUE_COUNT};
 use crate::{alphabet, grid};
 
 ///
@@ -50,7 +50,7 @@ impl<'before_solve> Constraints<'before_solve> {
     /// Adds the clauses ensuring that each cell must contain exactly one letter from the alphabet -
     /// or a block - to the given solver.
     pub fn add_one_letter_or_block_per_cell_clauses_to(&self, solver: &mut dyn SolverBuilder) {
-        let mut literals_buffer: Vec<i32> = Vec::with_capacity(NUMBER_OF_CELL_VALUES);
+        let mut literals_buffer: Vec<i32> = Vec::with_capacity(CELL_VALUE_COUNT);
         for row in 0..self.grid.row_count() {
             for column in 0..self.grid.column_count() {
                 for letter_index in 0..alphabet::letter_count() {
