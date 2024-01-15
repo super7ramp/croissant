@@ -34,7 +34,7 @@ use crate::variables::Variables;
 ///   example of the sudoku problem. Associated code is in C++.
 /// - [Sudoku4j](https://gitlab.com/super7ramp/sudoku4j), which is an example sudoku solver in Java.
 ///   (It is a translation in Java of Martin Hořeňovský's example sudoku C++ solver.)
-/// - [Croiseur's SAT solver](https://gitlab.com/super7ramp/croiseur/-/tree/master/croiseur-solver/croiseur-solver-sat),
+/// - [Croiseur's crossword solver backed by Sat4j](https://gitlab.com/super7ramp/croiseur/-/tree/master/croiseur-solver/croiseur-solver-sat),
 ///   which is the original implementation in Java of this program.
 pub struct Crossword<'before_solving> {
     variables: Variables,
