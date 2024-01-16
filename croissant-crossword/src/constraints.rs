@@ -1,11 +1,11 @@
 use crate::grid::Grid;
 use crate::slot::Slot;
-use crate::solver::SolverBuilder;
+use croissant_solver::solver::SolverBuilder;
 use crate::variables::{Variables, BLOCK_INDEX, CELL_VALUE_COUNT};
 use crate::{alphabet, grid};
 
 ///
-/// Where crossword problem constraints are built.
+/// Where croissant-crossword problem constraints are built.
 ///
 /// The constraints are:
 ///
@@ -140,7 +140,7 @@ impl<'before_solve> Constraints<'before_solve> {
 
 #[cfg(test)]
 mod test {
-    use crate::solver::Solver;
+    use croissant_solver::solver::Solver;
     use std::collections::HashMap;
 
     use super::*;

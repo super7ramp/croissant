@@ -1,0 +1,7 @@
+[package]
+name = "croissant-crossword"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+croissant-solver = { path = "../croissant-solver", version = "0.1.0" }
