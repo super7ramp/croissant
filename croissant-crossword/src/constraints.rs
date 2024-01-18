@@ -5,7 +5,7 @@ use crate::{alphabet, grid};
 use croissant_solver::solver::SolverBuilder;
 
 ///
-/// Where croissant-crossword problem constraints are built.
+/// Where crossword problem constraints are built.
 ///
 /// The constraints are:
 ///

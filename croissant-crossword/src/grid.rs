@@ -7,7 +7,7 @@ pub const BLOCK: char = '#';
 /// The character representing an empty cell.
 pub const EMPTY: char = '.';
 
-/// A croissant-crossword grid.
+/// A crossword grid.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Grid {
     rows: Vec<String>,

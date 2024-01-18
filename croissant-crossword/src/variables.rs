@@ -17,7 +17,7 @@ pub const BLOCK_INDEX: usize = alphabet::letter_count();
 ///   "after" the cell variables in the model. See [Self::slot] for the translation.
 #[derive(Clone)]
 pub struct Variables {
-    /// The croissant-crossword grid
+    /// The crossword grid
     grid: Grid,
     /// The number of words in the dictionary
     word_count: usize,
@@ -86,7 +86,7 @@ impl Variables {
             + 1
     }
 
-    /// Translates a vector of the variables states back to a croissant-crossword grid.
+    /// Translates a vector of the variables states back to a crossword grid.
     pub fn back_to_domain(&self, model: &Vec<i32>) -> String {
         let mut output_grid =
             String::with_capacity(self.grid.row_count() * self.grid.column_count());
