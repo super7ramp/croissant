@@ -1,0 +1,11 @@
+[package]
+name = "croissant-solver-splr"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+croissant-solver = { path = "../croissant-solver", version = "0.1.0" }
+splr = { version = "0.17.1", features = ["incremental_solver"] }
+
+[dev-dependencies]
+croissant-crossword = { path = "../croissant-crossword", version = "0.1.0" }

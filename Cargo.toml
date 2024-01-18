@@ -2,5 +2,6 @@
 members = [
     "croissant-crossword",
     "croissant-solver",
+    "croissant-solver-splr",
 ]
 resolver = "2"
