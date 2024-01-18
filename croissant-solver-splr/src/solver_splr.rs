@@ -42,14 +42,14 @@ impl Iterator for SplrSolverWrapper<'_> {
     type Item = Vec<i32>;
     fn next(&mut self) -> Option<Self::Item> {
         // FIXME lifetime
-        //     |
-        //  40 | impl<'solving> Iterator for SplrSolverWrapper<'solving> {
-        //     |      -------- lifetime `'solving` defined here
-        //  41 |     type Item = Vec<i32>;
-        //  42 |     fn next(&mut self) -> Option<Self::Item> {
-        //     |             - let's call the lifetime of this reference `'1`
-        //  43 |         self.iter.get_or_insert_with(|| self.solver.iter()).next()
-        //     |                                         ^^^^^^^^^^^^^^^^^^ method was supposed to return data with lifetime `'solving` but it is returning data with lifetime `'1`
+        //  3 |     fn next(&mut self) -> Option<Self::Item> {
+        //    |             ---------
+        //    |             |
+        //    |             let's call the lifetime of this reference `'1`
+        //    |             has type `&mut SplrSolverWrapper<'2>`
+        //  ...
+        //  53 |         self.iter.get_or_insert_with(|| self.solver.iter()).next()
+        //     |                                         ^^^^^^^^^^^^^^^^^^ method was supposed to return data with lifetime `'2` but it is returning data with lifetime `'1`
         self.iter.get_or_insert_with(|| self.solver.iter()).next()
     }
 }
