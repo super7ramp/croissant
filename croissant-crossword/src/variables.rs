@@ -88,10 +88,11 @@ impl Variables {
 
     /// Translates a vector of the variables states back to a crossword grid.
     pub fn back_to_domain(&self, model: &Vec<i32>) -> String {
-        let mut output_grid =
-            String::with_capacity(self.grid.row_count() * self.grid.column_count());
-        for row in 0..self.grid.row_count() {
-            for column in 0..self.grid.column_count() {
+        let column_count = self.grid.column_count();
+        let row_count = self.grid.row_count();
+        let mut output_grid = String::with_capacity(row_count * (column_count + 1/* new line */));
+        for row in 0..row_count {
+            for column in 0..column_count {
                 for value in 0..CELL_VALUE_COUNT {
                     let variable = self.cell(row, column, value) - 1;
                     if model[variable] > 0 {
@@ -99,9 +100,12 @@ impl Variables {
                             BLOCK_INDEX => char::from_u32(BLOCK_INDEX as u32).unwrap(),
                             _ => alphabet::letter_at(value),
                         };
-                        output_grid.insert(row * self.grid.row_count() + column, character);
+                        output_grid.insert(row * (column_count + 1) + column, character);
                     }
                 }
+            }
+            if row < row_count - 1 {
+                output_grid.insert(row * (column_count + 1) + column_count, '\n');
             }
         }
         output_grid
@@ -181,18 +185,33 @@ mod test {
 
     #[test]
     fn back_to_domain() {
-        let grid = Grid::from("...").unwrap();
+        let grid = Grid::from("...\n...\n...").unwrap();
         let variables = Variables::new(grid, 1);
         let mut model = vec![];
         for _cell in 0..3 {
             model.push(1); // state of variable 'A' for the current cell
             for _variable in 1..CELL_VALUE_COUNT {
-                model.push(-1) // states of variable 'A' to '#' for the current cell
+                model.push(-1) // states of variable 'B' to '#' for the current cell
+            }
+        }
+        for _cell in 3..6 {
+            model.push(-1); // state of variable 'A' for the current cell
+            model.push(1); // state of variable 'B' for the current cell
+            for _variable in 2..CELL_VALUE_COUNT {
+                model.push(-1) // states of variable 'C' to '#' for the current cell
+            }
+        }
+        for _cell in 6..9 {
+            model.push(-1); // state of variable 'A' for the current cell
+            model.push(-1); // state of variable 'B' for the current cell
+            model.push(1); // state of variable 'C' for the current cell
+            for _variable in 3..CELL_VALUE_COUNT {
+                model.push(-1) // states of variable 'D' to '#' for the current cell
             }
         }
 
         let solved_grid = variables.back_to_domain(&model);
 
-        assert_eq!("AAA", solved_grid);
+        assert_eq!("AAA\nBBB\nCCC", solved_grid);
     }
 }
