@@ -1,5 +1,5 @@
-use crate::alphabet;
 use crate::grid::Grid;
+use crate::{alphabet, grid};
 
 /// The number of values that a cell of a solved grid can take.
 pub const CELL_VALUE_COUNT: usize = alphabet::letter_count() + 1 /* block */;
@@ -97,7 +97,7 @@ impl Variables {
                     let variable = self.cell(row, column, value) - 1;
                     if model[variable] > 0 {
                         let character = match value {
-                            BLOCK_INDEX => char::from_u32(BLOCK_INDEX as u32).unwrap(),
+                            BLOCK_INDEX => grid::BLOCK,
                             _ => alphabet::letter_at(value),
                         };
                         output_grid.insert(row * (column_count + 1) + column, character);
@@ -185,7 +185,7 @@ mod test {
 
     #[test]
     fn back_to_domain() {
-        let grid = Grid::from("...\n...\n...").unwrap();
+        let grid = Grid::from("...\n.#.\n...").unwrap();
         let variables = Variables::new(grid, 1);
         let mut model = vec![];
         for _cell in 0..3 {
@@ -194,14 +194,21 @@ mod test {
                 model.push(-1) // states of variable 'B' to '#' for the current cell
             }
         }
-        for _cell in 3..6 {
-            model.push(-1); // state of variable 'A' for the current cell
-            model.push(1); // state of variable 'B' for the current cell
-            for _variable in 2..CELL_VALUE_COUNT {
-                model.push(-1) // states of variable 'C' to '#' for the current cell
-            }
+        model.push(-1); // state of variable 'A' for the cell 4
+        model.push(1); // state of variable 'B' for the cell 4
+        for _variable in 2..CELL_VALUE_COUNT {
+            model.push(-1) // states of variable 'C' to '#' for the cell 4
         }
-        for _cell in 6..9 {
+        for _variable in 0..(CELL_VALUE_COUNT - 1) {
+            model.push(-1) // states of variable 'A' to 'Z' for the cell 5
+        }
+        model.push(1); // state of variable '#' for the cell 5
+        model.push(-1); // state of variable 'A' for the cell 6
+        model.push(1); // state of variable 'B' for the cell 6
+        for _variable in 2..CELL_VALUE_COUNT {
+            model.push(-1) // states of variable 'C' to '#' for the cell 6
+        }
+        for _cell in 5..9 {
             model.push(-1); // state of variable 'A' for the current cell
             model.push(-1); // state of variable 'B' for the current cell
             model.push(1); // state of variable 'C' for the current cell
@@ -212,6 +219,6 @@ mod test {
 
         let solved_grid = variables.back_to_domain(&model);
 
-        assert_eq!("AAA\nBBB\nCCC", solved_grid);
+        assert_eq!("AAA\nB#B\nCCC", solved_grid);
     }
 }
