@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 croissant-solver = { path = "../croissant-solver", version = "0.1.0" }
-splr = { version = "0.17.1", features = ["incremental_solver"] }
+splr = { version = "0.17.1", features = ["incremental_solver"], git = "https://github.com/super7ramp/splr", branch = "croissant" }
 
 [dev-dependencies]
 croissant-crossword = { path = "../croissant-crossword", version = "0.1.0" }

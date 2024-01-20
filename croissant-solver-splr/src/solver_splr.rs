@@ -25,52 +25,73 @@ impl SolverBuilder for SplrSolverBuilder {
 }
 
 /// Implementation of [Solver] wrapping the splr SAT solver.
-struct SplrSolverWrapper<'solving> {
-    solver: splr::Solver,
-    iter: Option<SolverIter<'solving>>,
+struct SplrSolverWrapper {
+    iter: SolverIter,
 }
 
-impl SplrSolverWrapper<'_> {
+impl SplrSolverWrapper {
     fn new(clauses: &Vec<Vec<i32>>) -> Self {
-        // TODO error handling
-        let solver = splr::Solver::try_from((Config::default(), clauses.as_slice())).unwrap();
-        SplrSolverWrapper { solver, iter: None }
+        let iter = splr::Solver::try_from((Config::default(), clauses.as_slice()))
+            .map(splr::solver::Solver::into_iter)
+            .unwrap(); // TODO error handling
+        SplrSolverWrapper { iter }
     }
 }
 
-impl Iterator for SplrSolverWrapper<'_> {
+impl Iterator for SplrSolverWrapper {
     type Item = Vec<i32>;
     fn next(&mut self) -> Option<Self::Item> {
-        // FIXME lifetime
-        //  3 |     fn next(&mut self) -> Option<Self::Item> {
-        //    |             ---------
-        //    |             |
-        //    |             let's call the lifetime of this reference `'1`
-        //    |             has type `&mut SplrSolverWrapper<'2>`
-        //  ...
-        //  53 |         self.iter.get_or_insert_with(|| self.solver.iter()).next()
-        //     |                                         ^^^^^^^^^^^^^^^^^^ method was supposed to return data with lifetime `'2` but it is returning data with lifetime `'1`
-        self.iter.get_or_insert_with(|| self.solver.iter()).next()
+        self.iter.next()
     }
 }
 
-impl Solver for SplrSolverWrapper<'_> {
+impl Solver for SplrSolverWrapper {
     // Nothing to do.
 }
 
 #[cfg(test)]
 mod test {
-    use croissant_crossword::crossword::Crossword;
+    use croissant_crossword::crossword::{Crossword, CrosswordSolutions};
+    use std::collections::HashSet;
 
     use super::*;
 
     #[test]
-    fn crossword_simple_empty_word_list() {
-        let words = vec![];
+    fn crossword_simple() {
+        let words = vec!["AAA", "BBB", "CDE", "ABC", "ABD", "ABE"];
         let crossword = Crossword::from("...\n...\n...", &words).unwrap();
-        let solver_builder = Box::new(SplrSolverBuilder::new());
-        let mut solutions = crossword.solve_with(solver_builder);
+        let solver = Box::new(SplrSolverBuilder::new());
 
-        assert_eq!(None, solutions.next())
+        let solutions = crossword.solve_with(solver);
+
+        assert_solutions_eq(
+            [
+                "BBB\nBBB\nBBB",
+                "ABC\nABD\nABE",
+                "AAA\nBBB\nCDE",
+                "AAA\nAAA\nAAA",
+            ],
+            solutions,
+        );
+    }
+
+    /// Helper to verify that all solutions are present, in any order.
+    fn assert_solutions_eq<const N: usize>(
+        expected_solutions: [&str; N],
+        mut actual_solutions: CrosswordSolutions,
+    ) {
+        let mut expected_solutions = HashSet::from(expected_solutions);
+        while let Some(solution) = actual_solutions.next() {
+            assert_eq!(
+                true,
+                expected_solutions.remove(solution.as_str()),
+                "Unexpected solution: {solution:?}"
+            );
+        }
+        assert_eq!(
+            true,
+            expected_solutions.is_empty(),
+            "Missing solutions: {expected_solutions:?}"
+        );
     }
 }
