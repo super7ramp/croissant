@@ -92,7 +92,7 @@ impl<'before_solve> Constraints<'before_solve> {
     /// slot variable of the given slot and word.
     ///
     /// Panics if the given word contains a letter which is not in the [alphabet].
-    pub fn fill_cell_literals_conjunction(
+    fn fill_cell_literals_conjunction(
         &self,
         cell_literals: &mut Vec<i32>,
         slot: &Slot,
