@@ -1,6 +1,6 @@
 use croissant_solver::solver::{Solver, SolverBuilder};
 use logicng::datastructures::Model;
-use logicng::formulas::{EncodedFormula, FormulaFactory, Literal, Variable};
+use logicng::formulas::{CType, EncodedFormula, FormulaFactory, Literal, Variable};
 use logicng::solver::minisat::MiniSat;
 use std::rc::Rc;
 
@@ -22,21 +22,65 @@ impl LogicngSolverBuilder {
             formulas,
         }
     }
+
+    /// Converts a raw literal to an [EncodedFormula].
+    fn encoded_formula_from(&self, literal: i32) -> EncodedFormula {
+        EncodedFormula::from(self.literal_from_raw(literal))
+    }
+
+    /// Converts a raw literal to a [Literal].
+    fn literal_from_raw(&self, literal: i32) -> Literal {
+        let variable_name = literal.abs().to_string();
+        let literal_phase = literal > 0;
+        self.formula_factory
+            .lit(variable_name.as_str(), literal_phase)
+    }
 }
 
 impl SolverBuilder for LogicngSolverBuilder {
     fn add_clause(&mut self, literals: &Vec<i32>) {
-        let mut operands = Vec::with_capacity(literals.len());
-        for &literal in literals {
-            let variable_name = literal.abs().to_string();
-            let literal_phase = literal > 0;
-            let literal = self
-                .formula_factory
-                .literal(variable_name.as_str(), literal_phase);
-            operands.push(literal);
-        }
+        let operands: Vec<EncodedFormula> = literals
+            .iter()
+            .map(|&literal| self.encoded_formula_from(literal))
+            .collect();
         let or_formula = self.formula_factory.or(&operands.as_slice());
         self.formulas.push(or_formula);
+    }
+
+    // Overriding default implementation, assuming better performance with pseudo-boolean constraints.
+    fn add_exactly_one(&mut self, literals: &Vec<i32>) {
+        let lits: Vec<Literal> = literals
+            .iter()
+            .map(|&literal| self.literal_from_raw(literal))
+            .collect();
+        let formula = self
+            .formula_factory
+            .pbc(CType::EQ, 1, lits, vec![1; literals.len()]);
+        self.formulas.push(formula);
+    }
+
+    // Overriding default implementation, assuming better performance with pseudo-boolean constraints.
+    fn add_at_most_one(&mut self, literals: &Vec<i32>) {
+        let lits: Vec<Literal> = literals
+            .iter()
+            .map(|&literal| self.literal_from_raw(literal))
+            .collect();
+        let formula = self
+            .formula_factory
+            .pbc(CType::LE, 1, lits, vec![1; literals.len()]);
+        self.formulas.push(formula);
+    }
+
+    // Overriding default implementation, assuming better performance using logic-ng 'and' formula creation.
+    fn add_and(&mut self, literal: i32, conjunction: &Vec<i32>) {
+        let and_operands: Vec<EncodedFormula> = conjunction
+            .iter()
+            .map(|&literal| self.encoded_formula_from(literal))
+            .collect();
+        let right = self.formula_factory.and(&and_operands.as_slice());
+        let left = self.encoded_formula_from(literal);
+        let eq_formula = self.formula_factory.equivalence(left, right);
+        self.formulas.push(eq_formula);
     }
 
     fn build(&self) -> Box<dyn Solver<Item = Vec<i32>>> {
