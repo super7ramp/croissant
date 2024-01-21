@@ -1,6 +1,6 @@
 use croissant_crossword::crossword::{Crossword, CrosswordSolutions};
-use std::collections::HashSet;
 use croissant_solver_splr::solver_splr::SplrSolverBuilder;
+use std::collections::HashSet;
 
 #[test]
 #[ignore = "fix me!"]

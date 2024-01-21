@@ -1,6 +1,6 @@
 use croissant_crossword::crossword::{Crossword, CrosswordSolutions};
-use std::collections::HashSet;
 use croissant_solver_logicng::solver_logicng::LogicngSolverBuilder;
+use std::collections::HashSet;
 
 // TODO share common methods with project splr/tests into a testkit project
 
@@ -62,7 +62,7 @@ fn impossible_no_candidate() {
     assert_solutions_eq([], solutions);
 }
 
-/// Solves the given grid using the splr solver.
+/// Solves the given grid using the logic-ng solver.
 fn solve<const N: usize>(grid: &str, words: [&str; N]) -> CrosswordSolutions {
     let words_vec = Vec::from(words);
     let crossword = Crossword::from(grid, &words_vec).unwrap();
