@@ -1,6 +1,5 @@
 use std::fs::File;
-use std::io;
-use std::io::BufRead;
+use std::io::{BufRead, BufReader};
 use std::path::PathBuf;
 
 use croissant_crossword::crossword::{Crossword, CrosswordSolutions};
@@ -26,7 +25,7 @@ fn ukacd() -> Vec<String> {
         .join("tests")
         .join("UKACD18plus.txt");
     let file = File::open(path).expect("Test word list not found");
-    io::BufReader::new(file)
+    BufReader::new(file)
         .lines()
         .map(Result::unwrap)
         .filter(|word| word.is_ascii())

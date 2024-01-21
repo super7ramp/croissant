@@ -28,7 +28,6 @@ use crate::variables::Variables;
 ///    conjunction (= and) of cell variables - i.e. (cell,letter) pairs.
 /// 3. Prefilled cells must be kept as is.
 ///
-///
 /// ## See Also
 ///
 /// - [Martin Hořeňovský's introduction to SAT solvers](https://codingnest.com/modern-sat-solvers-fast-neat-underused-part-1-of-n/). It very clearly explains the basics with the

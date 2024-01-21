@@ -272,7 +272,7 @@ mod test {
     #[test]
     fn add_input_grid_constraints_are_satisfied_clauses_to() {
         let mut test_solver = TestSolverBuilder::new();
-        let grid = Grid::from("A#..#Z").unwrap();
+        let grid = Grid::from("A#.\n.#Z").unwrap();
         let words = vec![];
         let variables = Variables::new(grid.clone(), words.len());
         let constraints = Constraints::new(grid, variables, &words);
@@ -280,12 +280,12 @@ mod test {
         constraints.add_input_grid_constraints_are_satisfied_clauses_to(&mut test_solver);
 
         let expected_clauses = vec![
-            vec![1],
-            vec![54],
-            vec![-81],
-            vec![-108],
-            vec![135],
-            vec![161],
+            vec![1],    // 'A'
+            vec![54],   // '#'
+            vec![-81],  // not '#'
+            vec![-108], // not '#'
+            vec![135],  // '#'
+            vec![161],  // 'Z'
         ];
         assert_eq!(expected_clauses, test_solver.clauses);
         assert_eq!(

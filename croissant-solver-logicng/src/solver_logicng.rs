@@ -107,7 +107,7 @@ pub struct LogicngSolver {
     formula_factory: Rc<FormulaFactory>,
     /// The number of variables (since it is hard to get the information from solver)
     variables_count: usize,
-    /** Literals of the last solution. */
+    /// Literals of the last solution.
     last_solution_literals: Vec<Literal>,
     /// Whether all solutions have been found.
     no_more_solution: bool,
