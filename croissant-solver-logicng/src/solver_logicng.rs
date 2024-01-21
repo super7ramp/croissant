@@ -10,6 +10,8 @@ pub struct LogicngSolverBuilder {
     formula_factory: Rc<FormulaFactory>,
     /// The created formulas.
     formulas: Vec<EncodedFormula>,
+    /// The number of variables.
+    variables_count: usize,
 }
 
 impl LogicngSolverBuilder {
@@ -20,6 +22,7 @@ impl LogicngSolverBuilder {
         LogicngSolverBuilder {
             formula_factory,
             formulas,
+            variables_count: 0,
         }
     }
 
@@ -38,6 +41,10 @@ impl LogicngSolverBuilder {
 }
 
 impl SolverBuilder for LogicngSolverBuilder {
+    fn allocate_variables(&mut self, variables_count: usize) {
+        self.variables_count = variables_count;
+    }
+
     fn add_clause(&mut self, literals: &Vec<i32>) {
         let operands: Vec<EncodedFormula> = literals
             .iter()
@@ -47,7 +54,7 @@ impl SolverBuilder for LogicngSolverBuilder {
         self.formulas.push(or_formula);
     }
 
-    // Overriding default implementation, assuming better performance with pseudo-boolean constraints.
+    // Overriding default implementation for performance.
     fn add_exactly_one(&mut self, literals: &Vec<i32>) {
         let lits: Vec<Literal> = literals
             .iter()
@@ -59,7 +66,7 @@ impl SolverBuilder for LogicngSolverBuilder {
         self.formulas.push(formula);
     }
 
-    // Overriding default implementation, assuming better performance with pseudo-boolean constraints.
+    // Overriding default implementation for performance.
     fn add_at_most_one(&mut self, literals: &Vec<i32>) {
         let lits: Vec<Literal> = literals
             .iter()
@@ -71,7 +78,7 @@ impl SolverBuilder for LogicngSolverBuilder {
         self.formulas.push(formula);
     }
 
-    // Overriding default implementation, assuming better performance using logic-ng 'and' formula creation.
+    // Overriding default implementation for performance.
     fn add_and(&mut self, literal: i32, conjunction: &Vec<i32>) {
         let and_operands: Vec<EncodedFormula> = conjunction
             .iter()
@@ -87,6 +94,7 @@ impl SolverBuilder for LogicngSolverBuilder {
         Box::new(LogicngSolver::new(
             &self.formulas,
             self.formula_factory.clone(),
+            self.variables_count,
         ))
     }
 }
@@ -97,18 +105,28 @@ pub struct LogicngSolver {
     solver: MiniSat,
     /// The helper to retrieve registered formula names.
     formula_factory: Rc<FormulaFactory>,
+    /// The number of variables (since it is hard to get the information from solver)
+    variables_count: usize,
+    /** Literals of the last solution. */
+    last_solution_literals: Vec<Literal>,
     /// Whether all solutions have been found.
     no_more_solution: bool,
 }
 
 impl LogicngSolver {
     /// Creates an instance.
-    fn new(formulas: &Vec<EncodedFormula>, formula_factory: Rc<FormulaFactory>) -> Self {
+    fn new(
+        formulas: &Vec<EncodedFormula>,
+        formula_factory: Rc<FormulaFactory>,
+        variables_count: usize,
+    ) -> Self {
         let mut solver = MiniSat::new();
         solver.add_all(formulas, &formula_factory);
         LogicngSolver {
             solver,
             formula_factory,
+            variables_count,
+            last_solution_literals: Vec::new(),
             no_more_solution: false,
         }
     }
@@ -119,17 +137,26 @@ impl LogicngSolver {
         self.solver.model(None)
     }
 
-    /// Refutes the given [Model], i.e. don't propose the given solution again.
-    fn refute(&mut self, model: &Model) {
-        let not_model: Vec<Literal> = model.literals().iter().map(Literal::negate).collect();
+    /// Refutes the last solution, i.e. don't propose the last solution again.
+    /// Does nothing if no solution has been found yet.
+    fn refute_previous_solution(&mut self) {
+        if self.last_solution_literals.is_empty() {
+            return;
+        }
+        let not_model: Vec<Literal> = self
+            .last_solution_literals
+            .iter()
+            .map(Literal::negate)
+            .collect();
         let dont_propose_this_solution_anymore = self.formula_factory.clause(not_model.as_slice());
         self.solver
             .add(dont_propose_this_solution_anymore, &self.formula_factory);
+        self.last_solution_literals.clear();
     }
 
     /// Translates solver [Model] to a vector of variables states.
     fn variable_states_from(&self, model: Model) -> Vec<i32> {
-        let mut literals = vec![0; model.len()];
+        let mut literals = vec![0; self.variables_count];
         for positive_variable in model.pos() {
             literals[self.index_of(positive_variable)] = 1;
         }
@@ -157,16 +184,16 @@ impl Iterator for LogicngSolver {
         if self.no_more_solution {
             return None;
         }
+        self.refute_previous_solution();
 
         let optional_model = self.solve();
+
         if optional_model.is_none() {
             self.no_more_solution = true;
             return None;
         }
-
         let model = optional_model.unwrap();
-        self.refute(&model);
-
+        self.last_solution_literals = model.literals();
         let solution = self.variable_states_from(model);
         Some(solution)
     }

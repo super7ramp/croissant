@@ -23,23 +23,19 @@ use croissant_solver::solver::SolverBuilder;
 /// terms of memory: There are too many literals and clauses. Hence, the choice to progressively add
 /// the clauses to the solver.
 ///
-pub struct Constraints<'before_solve> {
+pub struct Constraints<'wordlist> {
     grid: Grid,
     variables: Variables,
-    words: &'before_solve Vec<&'before_solve str>,
+    words: &'wordlist Vec<String>,
 }
 
 /// The length of the buffer used to store cell literals corresponding to a word in a slot. Most
 /// words/slots should be smaller than this size.
 const CELL_LITERALS_BUFFER_LENGTH: usize = 20;
 
-impl<'before_solve> Constraints<'before_solve> {
+impl<'wordlist> Constraints<'wordlist> {
     /// Constructs a new instance.
-    pub fn new(
-        grid: Grid,
-        variables: Variables,
-        words: &'before_solve Vec<&'before_solve str>,
-    ) -> Self {
+    pub fn new(grid: Grid, variables: Variables, words: &'wordlist Vec<String>) -> Self {
         Constraints {
             grid,
             variables,
@@ -235,7 +231,10 @@ mod test {
     fn add_one_word_per_slot_clauses_to() {
         let mut test_solver = TestSolverBuilder::new();
         let grid = Grid::from("...\n#..").unwrap();
-        let words = vec!["ABC", "DEF", "AA", "BB", "CC"];
+        let words: Vec<String> = ["ABC", "DEF", "AA", "BB", "CC"]
+            .iter()
+            .map(|&word| word.to_string())
+            .collect();
         let variables = Variables::new(grid.clone(), words.len());
         let constraints = Constraints::new(grid, variables, &words);
 

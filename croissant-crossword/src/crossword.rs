@@ -37,19 +37,16 @@ use crate::variables::Variables;
 ///   (It is a translation in Java of Martin Hořeňovský's example sudoku C++ solver.)
 /// - [Croiseur's crossword solver backed by Sat4j](https://gitlab.com/super7ramp/croiseur/-/tree/master/croiseur-solver/croiseur-solver-sat),
 ///   which is the original implementation in Java of this program.
-pub struct Crossword<'before_solving> {
+pub struct Crossword<'wordlist> {
     variables: Variables,
-    constraints: Constraints<'before_solving>,
+    constraints: Constraints<'wordlist>,
 }
 
-impl<'before_solving> Crossword<'before_solving> {
+impl<'wordlist> Crossword<'wordlist> {
     /// Creates a new crossword from given grid and word list.
     // TODO specify input grid format
     // TODO specify authorized alphabet
-    pub fn from(
-        input_grid: &str,
-        words: &'before_solving Vec<&'before_solving str>,
-    ) -> Result<Self, String> {
+    pub fn from(input_grid: &str, words: &'wordlist Vec<String>) -> Result<Self, String> {
         let grid_creation = Grid::from(input_grid);
         if grid_creation.is_err() {
             return Err(grid_creation.err().unwrap());
@@ -57,7 +54,7 @@ impl<'before_solving> Crossword<'before_solving> {
 
         let grid = grid_creation.unwrap();
         let variables = Variables::new(grid.clone(), words.len());
-        let constraints = Constraints::new(grid, variables.clone(), words);
+        let constraints = Constraints::new(grid, variables.clone(), &words);
 
         Ok(Crossword {
             variables,
@@ -127,14 +124,20 @@ mod test {
 
     #[test]
     fn new_ok() {
-        let words = vec!["ABC", "DEF", "AA", "BB", "CC"];
+        let words: Vec<String> = ["ABC", "DEF", "AA", "BB", "CC"]
+            .iter()
+            .map(|&word| word.to_string())
+            .collect();
         let crossword = Crossword::from("...\n...", &words);
         assert_eq!(true, crossword.is_ok(), "Creation failed");
     }
 
     #[test]
     fn new_err() {
-        let words = vec!["ABC", "DEF", "AA", "BB", "CC"];
+        let words = ["ABC", "DEF", "AA", "BB", "CC"]
+            .iter()
+            .map(|&word| word.to_string())
+            .collect();
         let crossword = Crossword::from("___" /* invalid grid */, &words);
         assert_eq!(
             true,
@@ -145,7 +148,10 @@ mod test {
 
     #[test]
     fn solve_with() {
-        let words = vec!["ABC", "DEF", "AA", "BB", "CC"];
+        let words = ["ABC", "DEF", "AA", "BB", "CC"]
+            .iter()
+            .map(|&word| word.to_string())
+            .collect();
         let crossword = Crossword::from("...\n...", &words).unwrap();
         let stub_solver_builder = Box::new(StubSolverBuilder {});
 
