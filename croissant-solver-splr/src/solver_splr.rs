@@ -31,6 +31,7 @@ struct SplrSolverWrapper {
 
 impl SplrSolverWrapper {
     fn new(clauses: &Vec<Vec<i32>>) -> Self {
+        // FIXME clauses are copied twice, that's inefficient; it would be better if we could move builder into solver
         let iter = splr::Solver::try_from((Config::default(), clauses.as_slice()))
             .map(splr::solver::Solver::into_iter)
             .unwrap(); // TODO error handling

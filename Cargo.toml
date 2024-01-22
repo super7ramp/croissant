@@ -1,7 +1,11 @@
 [workspace]
 members = [
+    # Core
     "croissant-crossword",
+    # Solver SPI
     "croissant-solver",
+    # Solver implementations
+    "croissant-solver-cadical",
     "croissant-solver-logicng",
     "croissant-solver-splr",
 ]

@@ -76,6 +76,7 @@ pub trait SolverBuilder {
     }
 
     /// Builds the solver.
+    // FIXME it should be a move
     fn build(&self) -> Box<dyn Solver<Item = Vec<i32>>>;
 }
 
