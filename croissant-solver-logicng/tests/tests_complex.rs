@@ -11,6 +11,16 @@ fn empty3x3() {
     assert_eq!("BIZ\nONO\nAKA".to_string(), solutions.next().unwrap());
 }
 
+#[test]
+#[ignore = "too long (2m53s at 1GHz)"]
+fn empty4x4() {
+    let mut solutions = solve("....\n....\n....\n....");
+    assert_eq!(
+        "EGIS\nGADI\nGLEG\nYEAH".to_string(),
+        solutions.next().unwrap()
+    );
+}
+
 /// Solves the given grid using the logic-ng solver.
 fn solve(grid: &str) -> CrosswordSolutions {
     let words = ukacd();
@@ -29,7 +39,12 @@ fn ukacd() -> Vec<String> {
         .lines()
         .map(Result::unwrap)
         .filter(|word| word.is_ascii())
-        .map(|word| word.replace("-", "").replace("'", "").to_uppercase())
+        .map(|word| {
+            word.replace("-", "")
+                .replace("'", "")
+                .replace(".", "")
+                .to_uppercase()
+        })
         .filter(|word| !word.is_empty())
         .collect()
 }
