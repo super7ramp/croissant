@@ -1,4 +1,4 @@
-use croissant_solver::solver::{Solver, SolverBuilder};
+use croissant_solver::solver::{Solver, SolverBuilder, SolverConfigurator};
 use logicng::datastructures::Model;
 use logicng::formulas::{CType, EncodedFormula, FormulaFactory, Literal, Variable};
 use logicng::solver::minisat::MiniSat;
@@ -40,7 +40,7 @@ impl LogicngSolverBuilder {
     }
 }
 
-impl SolverBuilder for LogicngSolverBuilder {
+impl SolverConfigurator for LogicngSolverBuilder {
     fn allocate_variables(&mut self, variables_count: usize) {
         self.variables_count = variables_count;
     }
@@ -89,7 +89,9 @@ impl SolverBuilder for LogicngSolverBuilder {
         let eq_formula = self.formula_factory.equivalence(left, right);
         self.formulas.push(eq_formula);
     }
+}
 
+impl SolverBuilder for LogicngSolverBuilder {
     fn build(&self) -> Box<dyn Solver<Item = Vec<i32>>> {
         Box::new(LogicngSolver::new(
             &self.formulas,

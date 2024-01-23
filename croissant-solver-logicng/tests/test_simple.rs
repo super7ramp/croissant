@@ -67,7 +67,7 @@ fn solve<const N: usize>(grid: &str, words: [&str; N]) -> CrosswordSolutions {
     let words_vec = words.iter().map(|&word| word.to_string()).collect();
     let crossword = Crossword::from(grid, &words_vec).unwrap();
     let solver = Box::new(LogicngSolverBuilder::new());
-    crossword.solve_with(solver)
+    crossword.solve_with_solver_built_by(solver)
 }
 
 /// Helper to verify that all solutions are present, in any order.

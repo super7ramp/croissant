@@ -1,6 +1,6 @@
 use std::ops::DerefMut;
 
-use croissant_solver::solver::Solver;
+use croissant_solver::solver::{ConfigurableSolver, Solver, SolverConfigurator};
 use croissant_solver::solver::SolverBuilder;
 
 use crate::constraints::Constraints;
@@ -61,19 +61,31 @@ impl<'wordlist> Crossword<'wordlist> {
         })
     }
 
-    /// Solves this problem with given solver. Note that solution may not be actually computed when this function,
-    /// it may be created as late as when calling the created [CrosswordSolutions::next].
-    pub fn solve_with(self, mut solver_builder: Box<dyn SolverBuilder>) -> CrosswordSolutions {
-        let solver_builder = solver_builder.deref_mut();
-        solver_builder.allocate_variables(self.variables.count());
-        self.constraints
-            .add_one_letter_or_block_per_cell_clauses_to(solver_builder);
-        self.constraints
-            .add_one_word_per_slot_clauses_to(solver_builder);
-        self.constraints
-            .add_input_grid_constraints_are_satisfied_clauses_to(solver_builder);
+    /// Solves this problem with the solver built using given [SolverBuilder]. Note that solution may not be actually
+    /// computed when this function returns: It may be created as late as when calling the created
+    /// [CrosswordSolutions::next].
+    pub fn solve_with_solver_built_by(self, mut solver_builder: Box<dyn SolverBuilder>) -> CrosswordSolutions {
+        self.add_clauses_to(solver_builder.deref_mut());
         let solver = solver_builder.build();
         CrosswordSolutions::new(self.variables, solver)
+    }
+
+    /// Solves this problem with given [ConfigurableSolver]. Note that solution may not be actually computed when this
+    /// function returns: It may be created as late as when calling the created [CrosswordSolutions::next].
+    pub fn solve_with(self, mut solver: Box<dyn ConfigurableSolver<Item=Vec<i32>>>) -> CrosswordSolutions {
+        self.add_clauses_to(solver.deref_mut());
+        CrosswordSolutions::new(self.variables, solver)
+    }
+
+    /// Adds clauses to the given solver configurator.
+    fn add_clauses_to(&self, solver_configurator: &mut dyn SolverConfigurator) {
+        solver_configurator.allocate_variables(self.variables.count());
+        self.constraints
+            .add_one_letter_or_block_per_cell_clauses_to(solver_configurator);
+        self.constraints
+            .add_one_word_per_slot_clauses_to(solver_configurator);
+        self.constraints
+            .add_input_grid_constraints_are_satisfied_clauses_to(solver_configurator);
     }
 }
 
@@ -103,23 +115,27 @@ mod test {
     use super::*;
 
     struct StubSolverBuilder {}
+    impl SolverConfigurator for StubSolverBuilder {
+        fn add_clause(&mut self, _literals: &Vec<i32>) { /* Do nothing */ }
+    }
     impl SolverBuilder for StubSolverBuilder {
-        fn add_clause(&mut self, _literals: &Vec<i32>) {
-            // Do nothing.
-        }
         fn build(&self) -> Box<dyn Solver<Item = Vec<i32>>> {
             Box::new(StubSolver {})
         }
     }
 
     struct StubSolver {}
+    impl Solver for StubSolver {}
     impl Iterator for StubSolver {
         type Item = Vec<i32>;
         fn next(&mut self) -> Option<Self::Item> {
             None
         }
     }
-    impl Solver for StubSolver {}
+    impl ConfigurableSolver for StubSolver {}
+    impl SolverConfigurator for StubSolver {
+        fn add_clause(&mut self, _literals: &Vec<i32>) { /* Do nothing. */ }
+    }
 
     #[test]
     fn new_ok() {
@@ -152,9 +168,22 @@ mod test {
             .map(|&word| word.to_string())
             .collect();
         let crossword = Crossword::from("...\n...", &words).unwrap();
+        let stub_solver = Box::new(StubSolver {});
+
+        let mut solutions = crossword.solve_with(stub_solver);
+        assert_eq!(None, solutions.next())
+    }
+
+    #[test]
+    fn solve_with_builder() {
+        let words = ["ABC", "DEF", "AA", "BB", "CC"]
+            .iter()
+            .map(|&word| word.to_string())
+            .collect();
+        let crossword = Crossword::from("...\n...", &words).unwrap();
         let stub_solver_builder = Box::new(StubSolverBuilder {});
 
-        let mut solutions = crossword.solve_with(stub_solver_builder);
+        let mut solutions = crossword.solve_with_solver_built_by(stub_solver_builder);
         assert_eq!(None, solutions.next())
     }
 }

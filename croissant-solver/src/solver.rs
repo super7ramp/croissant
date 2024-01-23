@@ -1,20 +1,20 @@
 /// A SAT solver.
 ///
 /// It is an iterator over the models satisfying the problem. A model is a vector indexed by the variables, whose values
-/// indicates the state of the corresponding variable. A value to a positive integer indicates that the corresponding
-/// variable is true; a negative value indicates that the corresponding variable is false.
+/// indicate the state of the corresponding variable. A positive value indicates that the corresponding variable is
+/// true; a negative value indicates that the corresponding variable is false.
 ///
-/// The solver is instructed the problem using [SolverBuilder]'s add functions, and finally built
-/// using [SolverBuilder::build].
+/// A solver can either be mutable - a [ConfigurableSolver] - or immutable and built using a [SolverBuilder]. Implement
+/// one of these two traits, at your convenience: Both can be used by the core library.
 pub trait Solver: Iterator<Item = Vec<i32>> {
     // Nothing more than an iterator on the solutions for now.
 }
 
-/// Definition of a SAT solver builder.
+/// Definition of a solver configurator.
 ///
 /// The main function to implement is [add_clause]. Other functions contain default implementations
 /// which may be overridden for better performances.
-pub trait SolverBuilder {
+pub trait SolverConfigurator {
     /// Gives a hint about the number of variables. May be implemented to optimize performance.
     ///
     /// Default implementation does nothing.
@@ -74,34 +74,44 @@ pub trait SolverBuilder {
         last_clause.push(literal);
         self.add_clause(&last_clause);
     }
+}
 
+/// A configurable [Solver].
+///
+/// A mutable solver if you will. Implement this, unless you're adventurous and you want to try implementing
+/// [SolverBuilder] instead.
+pub trait ConfigurableSolver: SolverConfigurator + Solver {
+    // Marker trait.
+}
+
+/// A [Solver] builder.
+///
+/// Implement this if you can and want to efficiently register and share clauses between solver instances. If not,
+/// then implementing this trait will probably lead to a costly copy of the clauses between the builder and the solver
+/// upon call to the build function, and you'd better implement [ConfigurableSolver] instead.
+pub trait SolverBuilder: SolverConfigurator {
     /// Builds the solver.
-    // FIXME it should be a move
     fn build(&self) -> Box<dyn Solver<Item = Vec<i32>>>;
 }
 
-/// Tests for default [SolverBuilder] function implementations.
+/// Tests for default [SolverConfigurator] function implementations.
 #[cfg(test)]
 mod test {
     use super::*;
 
-    struct TestSolverBuilder {
+    struct TestSolverConfigurator {
         clauses: Vec<Vec<i32>>,
     }
 
-    impl SolverBuilder for TestSolverBuilder {
+    impl SolverConfigurator for TestSolverConfigurator {
         fn add_clause(&mut self, literals: &Vec<i32>) {
             self.clauses.push(literals.to_vec())
-        }
-
-        fn build(&self) -> Box<dyn Solver<Item = Vec<i32>>> {
-            unimplemented!()
         }
     }
 
     #[test]
     fn add_exactly_one() {
-        let mut solver_builder = TestSolverBuilder { clauses: vec![] };
+        let mut solver_builder = TestSolverConfigurator { clauses: vec![] };
         let literals = vec![1, 2, 3];
 
         solver_builder.add_exactly_one(&literals);
@@ -114,7 +124,7 @@ mod test {
 
     #[test]
     fn add_at_most_one() {
-        let mut solver_builder = TestSolverBuilder { clauses: vec![] };
+        let mut solver_builder = TestSolverConfigurator { clauses: vec![] };
         let literals = vec![1, 2, 3];
 
         solver_builder.add_at_most_one(&literals);
@@ -127,7 +137,7 @@ mod test {
 
     #[test]
     fn add_and() {
-        let mut solver_builder = TestSolverBuilder { clauses: vec![] };
+        let mut solver_builder = TestSolverConfigurator { clauses: vec![] };
         let conjunction = vec![-1, 6, -7];
 
         // 42 ⇔ -1 ∧ 6 ∧ -7

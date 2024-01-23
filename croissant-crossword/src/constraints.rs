@@ -1,8 +1,9 @@
+use croissant_solver::solver::SolverConfigurator;
+
+use crate::{alphabet, grid};
 use crate::grid::Grid;
 use crate::slot::Slot;
-use crate::variables::{Variables, BLOCK_INDEX, CELL_VALUE_COUNT};
-use crate::{alphabet, grid};
-use croissant_solver::solver::SolverBuilder;
+use crate::variables::{BLOCK_INDEX, CELL_VALUE_COUNT, Variables};
 
 ///
 /// Where crossword problem constraints are built.
@@ -45,7 +46,7 @@ impl<'wordlist> Constraints<'wordlist> {
 
     /// Adds the clauses ensuring that each cell must contain exactly one letter from the alphabet -
     /// or a block - to the given solver.
-    pub fn add_one_letter_or_block_per_cell_clauses_to(&self, solver: &mut dyn SolverBuilder) {
+    pub fn add_one_letter_or_block_per_cell_clauses_to(&self, solver: &mut dyn SolverConfigurator) {
         let mut literals_buffer: Vec<i32> = Vec::with_capacity(CELL_VALUE_COUNT);
         for row in 0..self.grid.row_count() {
             for column in 0..self.grid.column_count() {
@@ -63,7 +64,7 @@ impl<'wordlist> Constraints<'wordlist> {
 
     /// Adds the clauses ensuring that each slot must contain exactly one word from the word list to
     /// the given solver.
-    pub fn add_one_word_per_slot_clauses_to(&self, solver: &mut dyn SolverBuilder) {
+    pub fn add_one_word_per_slot_clauses_to(&self, solver: &mut dyn SolverConfigurator) {
         let mut slot_literals_buffer = Vec::with_capacity(self.words.len());
         let mut cell_literals_buffer = Vec::with_capacity(CELL_LITERALS_BUFFER_LENGTH);
         for slot in self.grid.slots() {
@@ -109,7 +110,7 @@ impl<'wordlist> Constraints<'wordlist> {
     /// solver.
     pub fn add_input_grid_constraints_are_satisfied_clauses_to(
         &self,
-        solver: &mut dyn SolverBuilder,
+        solver: &mut dyn SolverConfigurator,
     ) {
         let mut literals_buffer: Vec<i32> = Vec::with_capacity(1);
         for row in 0..self.grid.row_count() {
@@ -136,20 +137,19 @@ impl<'wordlist> Constraints<'wordlist> {
 
 #[cfg(test)]
 mod test {
-    use croissant_solver::solver::Solver;
     use std::collections::HashMap;
 
     use super::*;
 
-    struct TestSolverBuilder {
+    struct TestSolverConfigurator {
         clauses: Vec<Vec<i32>>,
         exactly_one_clauses: Vec<Vec<i32>>,
         and_clauses: HashMap<i32, Vec<i32>>,
     }
 
-    impl TestSolverBuilder {
+    impl TestSolverConfigurator {
         fn new() -> Self {
-            TestSolverBuilder {
+            TestSolverConfigurator {
                 clauses: vec![],
                 exactly_one_clauses: vec![],
                 and_clauses: HashMap::new(),
@@ -157,7 +157,7 @@ mod test {
         }
     }
 
-    impl SolverBuilder for TestSolverBuilder {
+    impl SolverConfigurator for TestSolverConfigurator {
         fn add_clause(&mut self, literals: &Vec<i32>) {
             let literals_copy = literals.to_vec();
             self.clauses.push(literals_copy)
@@ -172,15 +172,11 @@ mod test {
             let conjunction_copy = conjunction.to_vec();
             self.and_clauses.insert(literal, conjunction_copy);
         }
-
-        fn build(&self) -> Box<dyn Solver<Item = Vec<i32>>> {
-            unimplemented!()
-        }
     }
 
     #[test]
     fn constraints_add_one_letter_or_block_per_cell_clauses_to() {
-        let mut test_solver = TestSolverBuilder::new();
+        let mut test_solver = TestSolverConfigurator::new();
         let grid = Grid::from("...\n...").unwrap();
         let words = vec![];
         let variables = Variables::new(grid.clone(), words.len());
@@ -229,7 +225,7 @@ mod test {
 
     #[test]
     fn add_one_word_per_slot_clauses_to() {
-        let mut test_solver = TestSolverBuilder::new();
+        let mut test_solver = TestSolverConfigurator::new();
         let grid = Grid::from("...\n#..").unwrap();
         let words: Vec<String> = ["ABC", "DEF", "AA", "BB", "CC"]
             .iter()
@@ -271,7 +267,7 @@ mod test {
 
     #[test]
     fn add_input_grid_constraints_are_satisfied_clauses_to() {
-        let mut test_solver = TestSolverBuilder::new();
+        let mut test_solver = TestSolverConfigurator::new();
         let grid = Grid::from("A#.\n.#Z").unwrap();
         let words = vec![];
         let variables = Variables::new(grid.clone(), words.len());

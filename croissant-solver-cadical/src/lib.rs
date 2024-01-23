@@ -1,48 +1,21 @@
-use croissant_solver::solver::{Solver, SolverBuilder};
+use croissant_solver::solver::{ConfigurableSolver, Solver, SolverConfigurator};
 
-/// Implementation of [SolverBuilder].
-pub struct CadicalSolverBuilder {
-    clauses: Vec<Vec<i32>>,
-}
-
-impl CadicalSolverBuilder {
-    pub fn new() -> Self {
-        let clauses = Vec::new();
-        CadicalSolverBuilder { clauses }
-    }
-}
-
-impl SolverBuilder for CadicalSolverBuilder {
-    fn add_clause(&mut self, literals: &Vec<i32>) {
-        self.clauses.push(literals.to_vec());
-    }
-
-    fn build(&self) -> Box<dyn Solver<Item = Vec<i32>>> {
-        Box::new(CadicalSolver::new(&self.clauses))
-    }
-}
-
-/// Implementation of [Solver].
-struct CadicalSolver {
+/// Implementation of [ConfigurableSolver].
+pub struct CadicalSolver {
     solver: cadical::Solver,
     last_solution: Vec<i32>,
     no_more_solution: bool,
 }
 
 impl CadicalSolver {
-    fn new(clauses: &Vec<Vec<i32>>) -> Self {
-        // FIXME clauses are copied twice, that's inefficient; it would be better if we could move builder into solver
-        let mut solver = cadical::Solver::default();
-        clauses
-            .iter()
-            .for_each(|clause| solver.add_clause(clause.clone()));
+    pub fn new() -> Self {
+        let solver = cadical::Solver::default();
         CadicalSolver {
             solver,
             last_solution: Vec::new(),
             no_more_solution: false,
         }
     }
-
     fn refute_last_solution(&mut self) {
         if self.last_solution.is_empty() {
             return;
@@ -53,6 +26,12 @@ impl CadicalSolver {
         //  could be given as a hint in SolverBuilder.
         let not_last_solution: Vec<i32> = self.last_solution.iter().map(|lit| -lit).collect();
         self.solver.add_clause(not_last_solution);
+    }
+}
+
+impl SolverConfigurator for CadicalSolver {
+    fn add_clause(&mut self, literals: &Vec<i32>) {
+        self.solver.add_clause(literals.to_vec());
     }
 }
 
@@ -84,3 +63,4 @@ impl Iterator for CadicalSolver {
 }
 
 impl Solver for CadicalSolver {}
+impl ConfigurableSolver for CadicalSolver {}

@@ -26,7 +26,7 @@ fn solve(grid: &str) -> CrosswordSolutions {
     let words = ukacd();
     let crossword = Crossword::from(grid, &words).unwrap();
     let solver = Box::new(LogicngSolverBuilder::new());
-    crossword.solve_with(solver)
+    crossword.solve_with_solver_built_by(solver)
 }
 
 /// Reads the UKACD word list.
