@@ -76,18 +76,16 @@ fn solve<const N: usize>(grid: &str, words: [&str; N]) -> CrosswordSolutions {
 /// Helper to verify that all solutions are present, in any order.
 fn assert_solutions_eq<const N: usize>(
     expected_solutions: [&str; N],
-    mut actual_solutions: CrosswordSolutions,
+    actual_solutions: CrosswordSolutions,
 ) {
     let mut expected_solutions = HashSet::from(expected_solutions);
-    while let Some(solution) = actual_solutions.next() {
-        assert_eq!(
-            true,
+    for solution in actual_solutions {
+        assert!(
             expected_solutions.remove(solution.as_str()),
             "Unexpected solution: {solution:?}"
         );
     }
-    assert_eq!(
-        true,
+    assert!(
         expected_solutions.is_empty(),
         "Missing solutions: {expected_solutions:?}"
     );

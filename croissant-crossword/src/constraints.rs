@@ -1,9 +1,9 @@
 use croissant_solver::solver::SolverConfigurator;
 
-use crate::{alphabet, grid};
 use crate::grid::Grid;
 use crate::slot::Slot;
-use crate::variables::{BLOCK_INDEX, CELL_VALUE_COUNT, Variables};
+use crate::variables::{Variables, BLOCK_INDEX, CELL_VALUE_COUNT};
+use crate::{alphabet, grid};
 
 ///
 /// Where crossword problem constraints are built.
@@ -98,7 +98,7 @@ impl<'wordlist> Constraints<'wordlist> {
         let slot_positions = slot.positions();
         for (slot_pos, letter) in slot_positions.iter().zip(word.chars()) {
             let letter_index = alphabet::index_of(letter)
-                .expect(format!("Unsupported character {letter}").as_str());
+                .unwrap_or_else(|| panic!("Unsupported character {letter}"));
             let cell_var = self
                 .variables
                 .cell(slot_pos.row(), slot_pos.column(), letter_index);
@@ -158,17 +158,17 @@ mod test {
     }
 
     impl SolverConfigurator for TestSolverConfigurator {
-        fn add_clause(&mut self, literals: &Vec<i32>) {
+        fn add_clause(&mut self, literals: &[i32]) {
             let literals_copy = literals.to_vec();
             self.clauses.push(literals_copy)
         }
 
-        fn add_exactly_one(&mut self, literals: &Vec<i32>) {
+        fn add_exactly_one(&mut self, literals: &[i32]) {
             let literals_copy = literals.to_vec();
             self.exactly_one_clauses.push(literals_copy)
         }
 
-        fn add_and(&mut self, literal: i32, conjunction: &Vec<i32>) {
+        fn add_and(&mut self, literal: i32, conjunction: &[i32]) {
             let conjunction_copy = conjunction.to_vec();
             self.and_clauses.insert(literal, conjunction_copy);
         }
@@ -184,7 +184,7 @@ mod test {
 
         constraints.add_one_letter_or_block_per_cell_clauses_to(&mut test_solver);
 
-        assert_eq!(true, test_solver.clauses.is_empty(), "Unexpected clauses");
+        assert!(test_solver.clauses.is_empty(), "Unexpected clauses");
         let expected_exactly_one_clauses: Vec<Vec<i32>> = vec![
             // For each cell, exactly one value among the 27 possible
             vec![
@@ -216,11 +216,7 @@ mod test {
             expected_exactly_one_clauses,
             test_solver.exactly_one_clauses
         );
-        assert_eq!(
-            true,
-            test_solver.and_clauses.is_empty(),
-            "Unexpected clauses"
-        );
+        assert!(test_solver.and_clauses.is_empty(), "Unexpected clauses");
     }
 
     #[test]
@@ -236,7 +232,7 @@ mod test {
 
         constraints.add_one_word_per_slot_clauses_to(&mut test_solver);
 
-        assert_eq!(true, test_solver.clauses.is_empty(), "Unexpected clauses");
+        assert!(test_solver.clauses.is_empty(), "Unexpected clauses");
         assert_eq!(
             vec![
                 // For each slot, exactly one word (of the same length)
@@ -284,15 +280,10 @@ mod test {
             vec![161],  // 'Z'
         ];
         assert_eq!(expected_clauses, test_solver.clauses);
-        assert_eq!(
-            true,
+        assert!(
             test_solver.exactly_one_clauses.is_empty(),
             "Unexpected clauses"
         );
-        assert_eq!(
-            true,
-            test_solver.and_clauses.is_empty(),
-            "Unexpected clauses"
-        );
+        assert!(test_solver.and_clauses.is_empty(), "Unexpected clauses");
     }
 }

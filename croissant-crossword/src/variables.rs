@@ -87,7 +87,7 @@ impl Variables {
     }
 
     /// Translates a vector of the variables states back to a crossword grid.
-    pub fn back_to_domain(&self, model: &Vec<i32>) -> String {
+    pub fn back_to_domain(&self, model: &[i32]) -> String {
         let column_count = self.grid.column_count();
         let row_count = self.grid.row_count();
         let mut output_grid = String::with_capacity(row_count * (column_count + 1/* new line */));

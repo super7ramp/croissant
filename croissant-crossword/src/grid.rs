@@ -17,14 +17,8 @@ impl Grid {
     /// Attempts to create a new [Grid] from given rows. Function returns the grid if given input is valid, otherwise
     /// it returns an error containing details about the validation failure.
     fn new(rows: Vec<String>) -> Result<Self, String> {
-        let validation_result = Grid::validate(rows);
-        if validation_result.is_err() {
-            return Err(validation_result.unwrap_err());
-        }
-        let grid = Grid {
-            rows: validation_result.unwrap(),
-        };
-        Ok(grid)
+        let rows = Grid::validate(rows)?;
+        Ok(Grid { rows })
     }
 
     /// Validates the given rows. Function returns the input rows if they are valid, otherwise it returns an error
@@ -35,8 +29,7 @@ impl Grid {
             return Ok(rows);
         }
         let first_row_length = rows[0].len();
-        for row_index in 0..rows.len() {
-            let row = &rows[row_index];
+        for (row_index, row) in rows.iter().enumerate() {
             let row_length = row.len();
             if row_length != first_row_length {
                 return Err(format!("Inconsistent number of columns: Row #{row_index} has {row_length} columns but row #0 has {first_row_length}"));
@@ -73,6 +66,7 @@ impl Grid {
     }
 
     /// Computes the across slots.
+    #[allow(clippy::mut_range_bound)]
     fn across_slots(&self) -> Vec<Slot> {
         let mut slots = vec![];
         let row_count = self.row_count();
@@ -95,6 +89,7 @@ impl Grid {
     }
 
     /// Computes the down slots.
+    #[allow(clippy::mut_range_bound)]
     fn down_slots(&self, start_index: usize) -> Vec<Slot> {
         let mut slots = vec![];
         let row_count = self.row_count();

@@ -40,9 +40,9 @@ fn ukacd() -> Vec<String> {
         .map(Result::unwrap)
         .filter(|word| word.is_ascii())
         .map(|word| {
-            word.replace("-", "")
-                .replace("'", "")
-                .replace(".", "")
+            word.replace('-', "")
+                .replace('\'', "")
+                .replace('.', "")
                 .to_uppercase()
         })
         .filter(|word| !word.is_empty())

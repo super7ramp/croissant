@@ -14,6 +14,12 @@ pub struct LogicngSolverBuilder {
     variables_count: usize,
 }
 
+impl Default for LogicngSolverBuilder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl LogicngSolverBuilder {
     /// Creates an instance.
     pub fn new() -> Self {
@@ -45,17 +51,17 @@ impl SolverConfigurator for LogicngSolverBuilder {
         self.variables_count = variables_count;
     }
 
-    fn add_clause(&mut self, literals: &Vec<i32>) {
+    fn add_clause(&mut self, literals: &[i32]) {
         let operands: Vec<EncodedFormula> = literals
             .iter()
             .map(|&literal| self.encoded_formula_from(literal))
             .collect();
-        let or_formula = self.formula_factory.or(&operands.as_slice());
+        let or_formula = self.formula_factory.or(operands.as_slice());
         self.formulas.push(or_formula);
     }
 
     // Overriding default implementation for performance.
-    fn add_exactly_one(&mut self, literals: &Vec<i32>) {
+    fn add_exactly_one(&mut self, literals: &[i32]) {
         let lits: Vec<Literal> = literals
             .iter()
             .map(|&literal| self.literal_from_raw(literal))
@@ -67,7 +73,7 @@ impl SolverConfigurator for LogicngSolverBuilder {
     }
 
     // Overriding default implementation for performance.
-    fn add_at_most_one(&mut self, literals: &Vec<i32>) {
+    fn add_at_most_one(&mut self, literals: &[i32]) {
         let lits: Vec<Literal> = literals
             .iter()
             .map(|&literal| self.literal_from_raw(literal))
@@ -79,12 +85,12 @@ impl SolverConfigurator for LogicngSolverBuilder {
     }
 
     // Overriding default implementation for performance.
-    fn add_and(&mut self, literal: i32, conjunction: &Vec<i32>) {
+    fn add_and(&mut self, literal: i32, conjunction: &[i32]) {
         let and_operands: Vec<EncodedFormula> = conjunction
             .iter()
             .map(|&literal| self.encoded_formula_from(literal))
             .collect();
-        let right = self.formula_factory.and(&and_operands.as_slice());
+        let right = self.formula_factory.and(and_operands.as_slice());
         let left = self.encoded_formula_from(literal);
         let eq_formula = self.formula_factory.equivalence(left, right);
         self.formulas.push(eq_formula);
@@ -118,7 +124,7 @@ pub struct LogicngSolver {
 impl LogicngSolver {
     /// Creates an instance.
     fn new(
-        formulas: &Vec<EncodedFormula>,
+        formulas: &[EncodedFormula],
         formula_factory: Rc<FormulaFactory>,
         variables_count: usize,
     ) -> Self {

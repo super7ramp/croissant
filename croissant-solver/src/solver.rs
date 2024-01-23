@@ -23,7 +23,7 @@ pub trait SolverConfigurator {
     }
 
     /// Adds the given literals as an *at-least-one* clause, i.e. a disjunction (= or).
-    fn add_clause(&mut self, literals: &Vec<i32>);
+    fn add_clause(&mut self, literals: &[i32]);
 
     /// Adds the given literals as an *exactly-one* clause.
     ///
@@ -31,7 +31,7 @@ pub trait SolverConfigurator {
     ///
     /// Default implementation creates these corresponding clauses and add them using [add_clause] and [at_most_one].
     /// Implementors may override this function for better performances
-    fn add_exactly_one(&mut self, literals: &Vec<i32>) {
+    fn add_exactly_one(&mut self, literals: &[i32]) {
         self.add_clause(literals);
         self.add_at_most_one(literals);
     }
@@ -44,7 +44,7 @@ pub trait SolverConfigurator {
     ///
     /// Default implementation creates these corresponding clauses and add them using [add_clause].
     /// Implementors may override this function for better performances
-    fn add_at_most_one(&mut self, literals: &Vec<i32>) {
+    fn add_at_most_one(&mut self, literals: &[i32]) {
         let mut clause_buffer = Vec::with_capacity(2);
         for i in 0..literals.len() {
             for j in (i + 1)..literals.len() {
@@ -65,10 +65,10 @@ pub trait SolverConfigurator {
     ///
     /// Default implementation adds these corresponding clauses using [add_clause]. Implementors
     /// may override this function for better performance.
-    fn add_and(&mut self, literal: i32, conjunction: &Vec<i32>) {
+    fn add_and(&mut self, literal: i32, conjunction: &[i32]) {
         let mut last_clause = Vec::with_capacity(conjunction.len() + 1);
         for &conjunction_literal in conjunction {
-            self.add_clause(&vec![-literal, conjunction_literal]);
+            self.add_clause(&[-literal, conjunction_literal]);
             last_clause.push(-conjunction_literal);
         }
         last_clause.push(literal);
@@ -104,7 +104,7 @@ mod test {
     }
 
     impl SolverConfigurator for TestSolverConfigurator {
-        fn add_clause(&mut self, literals: &Vec<i32>) {
+        fn add_clause(&mut self, literals: &[i32]) {
             self.clauses.push(literals.to_vec())
         }
     }

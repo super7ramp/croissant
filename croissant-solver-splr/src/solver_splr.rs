@@ -10,14 +10,22 @@ pub struct SplrSolverBuilder {
     clauses: Vec<Vec<i32>>,
 }
 
+impl Default for SplrSolverBuilder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SplrSolverBuilder {
     pub fn new() -> Self {
-        SplrSolverBuilder { clauses: Vec::new() }
+        SplrSolverBuilder {
+            clauses: Vec::new(),
+        }
     }
 }
 
 impl SolverConfigurator for SplrSolverBuilder {
-    fn add_clause(&mut self, literals: &Vec<i32>) {
+    fn add_clause(&mut self, literals: &[i32]) {
         self.clauses.push(literals.to_vec())
     }
 }

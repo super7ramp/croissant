@@ -7,6 +7,12 @@ pub struct CadicalSolver {
     no_more_solution: bool,
 }
 
+impl Default for CadicalSolver {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl CadicalSolver {
     pub fn new() -> Self {
         let solver = cadical::Solver::default();
@@ -30,7 +36,7 @@ impl CadicalSolver {
 }
 
 impl SolverConfigurator for CadicalSolver {
-    fn add_clause(&mut self, literals: &Vec<i32>) {
+    fn add_clause(&mut self, literals: &[i32]) {
         self.solver.add_clause(literals.to_vec());
     }
 }

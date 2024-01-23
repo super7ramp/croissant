@@ -31,12 +31,12 @@ mod tests {
 
     #[test]
     fn alphabet_contains() {
-        assert_eq!(true, contains('A'));
-        assert_eq!(true, contains('E'));
-        assert_eq!(true, contains('Z'));
-        assert_eq!(false, contains('@'));
-        assert_eq!(false, contains('&'));
-        assert_eq!(false, contains('À'));
+        assert!(contains('A'));
+        assert!(contains('E'));
+        assert!(contains('Z'));
+        assert!(!contains('@'));
+        assert!(!contains('&'));
+        assert!(!contains('À'));
     }
 
     #[test]

@@ -1,7 +1,7 @@
 use std::ops::DerefMut;
 
-use croissant_solver::solver::{ConfigurableSolver, Solver, SolverConfigurator};
 use croissant_solver::solver::SolverBuilder;
+use croissant_solver::solver::{ConfigurableSolver, Solver, SolverConfigurator};
 
 use crate::constraints::Constraints;
 use crate::grid::Grid;
@@ -53,7 +53,7 @@ impl<'wordlist> Crossword<'wordlist> {
 
         let grid = grid_creation.unwrap();
         let variables = Variables::new(grid.clone(), words.len());
-        let constraints = Constraints::new(grid, variables.clone(), &words);
+        let constraints = Constraints::new(grid, variables.clone(), words);
 
         Ok(Crossword {
             variables,
@@ -64,7 +64,10 @@ impl<'wordlist> Crossword<'wordlist> {
     /// Solves this problem with the solver built using given [SolverBuilder]. Note that solution may not be actually
     /// computed when this function returns: It may be created as late as when calling the created
     /// [CrosswordSolutions::next].
-    pub fn solve_with_solver_built_by(self, mut solver_builder: Box<dyn SolverBuilder>) -> CrosswordSolutions {
+    pub fn solve_with_solver_built_by(
+        self,
+        mut solver_builder: Box<dyn SolverBuilder>,
+    ) -> CrosswordSolutions {
         self.add_clauses_to(solver_builder.deref_mut());
         let solver = solver_builder.build();
         CrosswordSolutions::new(self.variables, solver)
@@ -72,7 +75,10 @@ impl<'wordlist> Crossword<'wordlist> {
 
     /// Solves this problem with given [ConfigurableSolver]. Note that solution may not be actually computed when this
     /// function returns: It may be created as late as when calling the created [CrosswordSolutions::next].
-    pub fn solve_with(self, mut solver: Box<dyn ConfigurableSolver<Item=Vec<i32>>>) -> CrosswordSolutions {
+    pub fn solve_with(
+        self,
+        mut solver: Box<dyn ConfigurableSolver<Item = Vec<i32>>>,
+    ) -> CrosswordSolutions {
         self.add_clauses_to(solver.deref_mut());
         CrosswordSolutions::new(self.variables, solver)
     }
@@ -116,7 +122,8 @@ mod test {
 
     struct StubSolverBuilder {}
     impl SolverConfigurator for StubSolverBuilder {
-        fn add_clause(&mut self, _literals: &Vec<i32>) { /* Do nothing */ }
+        fn add_clause(&mut self, _literals: &[i32]) { /* Do nothing */
+        }
     }
     impl SolverBuilder for StubSolverBuilder {
         fn build(&self) -> Box<dyn Solver<Item = Vec<i32>>> {
@@ -134,7 +141,8 @@ mod test {
     }
     impl ConfigurableSolver for StubSolver {}
     impl SolverConfigurator for StubSolver {
-        fn add_clause(&mut self, _literals: &Vec<i32>) { /* Do nothing. */ }
+        fn add_clause(&mut self, _literals: &[i32]) { /* Do nothing. */
+        }
     }
 
     #[test]
@@ -144,7 +152,7 @@ mod test {
             .map(|&word| word.to_string())
             .collect();
         let crossword = Crossword::from("...\n...", &words);
-        assert_eq!(true, crossword.is_ok(), "Creation failed");
+        assert!(crossword.is_ok(), "Creation failed");
     }
 
     #[test]
@@ -154,8 +162,7 @@ mod test {
             .map(|&word| word.to_string())
             .collect();
         let crossword = Crossword::from("___" /* invalid grid */, &words);
-        assert_eq!(
-            true,
+        assert!(
             crossword.is_err(),
             "Creation succeeded, while it should have failed"
         );
