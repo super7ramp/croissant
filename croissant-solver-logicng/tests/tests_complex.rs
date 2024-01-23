@@ -3,7 +3,7 @@ use std::io::{BufRead, BufReader};
 use std::path::PathBuf;
 
 use croissant_crossword::crossword::{Crossword, CrosswordSolutions};
-use croissant_solver_logicng::solver_logicng::LogicngSolverBuilder;
+use croissant_solver_logicng::LogicngSolverBuilder;
 
 #[test]
 fn empty3x3() {

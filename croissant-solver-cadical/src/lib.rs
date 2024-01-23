@@ -1,4 +1,4 @@
-use croissant_solver::solver::{ConfigurableSolver, Solver, SolverConfigurator};
+use croissant_solver::{ConfigurableSolver, Solver, SolverConfigurator};
 
 /// Implementation of [ConfigurableSolver].
 pub struct CadicalSolver {

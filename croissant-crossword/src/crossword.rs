@@ -1,7 +1,7 @@
 use std::ops::DerefMut;
 
-use croissant_solver::solver::SolverBuilder;
-use croissant_solver::solver::{ConfigurableSolver, Solver, SolverConfigurator};
+use croissant_solver::SolverBuilder;
+use croissant_solver::{ConfigurableSolver, Solver, SolverConfigurator};
 
 use crate::constraints::Constraints;
 use crate::grid::Grid;

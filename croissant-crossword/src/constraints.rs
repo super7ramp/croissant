@@ -1,4 +1,4 @@
-use croissant_solver::solver::SolverConfigurator;
+use croissant_solver::SolverConfigurator;
 
 use crate::grid::Grid;
 use crate::slot::Slot;

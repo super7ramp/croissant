@@ -1,5 +1,5 @@
 use croissant_crossword::crossword::{Crossword, CrosswordSolutions};
-use croissant_solver_splr::solver_splr::SplrSolverBuilder;
+use croissant_solver_splr::SplrSolverBuilder;
 use std::collections::HashSet;
 
 #[test]

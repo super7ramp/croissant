@@ -1,5 +1,5 @@
 use croissant_crossword::crossword::{Crossword, CrosswordSolutions};
-use croissant_solver_logicng::solver_logicng::LogicngSolverBuilder;
+use croissant_solver_logicng::LogicngSolverBuilder;
 use std::collections::HashSet;
 
 // TODO share common methods with project splr/tests into a testkit project
