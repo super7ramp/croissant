@@ -8,17 +8,14 @@ use croissant_solver_logicng::LogicngSolverBuilder;
 #[test]
 fn empty3x3() {
     let mut solutions = solve("...\n...\n...");
-    assert_eq!("BIZ\nONO\nAKA".to_string(), solutions.next().unwrap());
+    assert_eq!(Some("BIZ\nONO\nAKA".to_string()), solutions.next());
 }
 
 #[test]
 #[ignore = "too long (2m53s at 1GHz)"]
 fn empty4x4() {
     let mut solutions = solve("....\n....\n....\n....");
-    assert_eq!(
-        Some("EGIS\nGADI\nGLEG\nYEAH".to_string()),
-        solutions.next()
-    );
+    assert_eq!(Some("EGIS\nGADI\nGLEG\nYEAH".to_string()), solutions.next());
 }
 
 #[test]
@@ -54,7 +51,7 @@ fn ukacd() -> Vec<String> {
                 .replace('.', "")
                 .to_uppercase()
         })
-        .filter(|word| word.chars().all(|letter| letter >= 'A' && letter <= 'Z' ))
+        .filter(|word| word.chars().all(|letter| letter >= 'A' && letter <= 'Z'))
         .filter(|word| !word.is_empty())
         .collect()
 }
