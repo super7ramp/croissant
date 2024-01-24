@@ -66,14 +66,13 @@ impl Grid {
     }
 
     /// Computes the across slots.
-    #[allow(clippy::mut_range_bound)]
     fn across_slots(&self) -> Vec<Slot> {
         let mut slots = vec![];
         let row_count = self.row_count();
         let column_count = self.column_count();
         for row in 0..row_count {
             let mut column_start = 0;
-            for column in column_start..column_count {
+            for column in 0..column_count {
                 if self.letter_at(row, column) == BLOCK {
                     if column - column_start >= slot::MIN_LEN {
                         slots.push(Slot::across(slots.len(), column_start, column, row));
@@ -89,14 +88,13 @@ impl Grid {
     }
 
     /// Computes the down slots.
-    #[allow(clippy::mut_range_bound)]
     fn down_slots(&self, start_index: usize) -> Vec<Slot> {
         let mut slots = vec![];
         let row_count = self.row_count();
         let column_count = self.column_count();
         for column in 0..column_count {
             let mut row_start = 0;
-            for row in row_start..row_count {
+            for row in 0..row_count {
                 if self.letter_at(row, column) == BLOCK {
                     if row - row_start >= slot::MIN_LEN {
                         slots.push(Slot::down(
