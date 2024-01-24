@@ -16,8 +16,18 @@ fn empty3x3() {
 fn empty4x4() {
     let mut solutions = solve("....\n....\n....\n....");
     assert_eq!(
-        "EGIS\nGADI\nGLEG\nYEAH".to_string(),
-        solutions.next().unwrap()
+        Some("EGIS\nGADI\nGLEG\nYEAH".to_string()),
+        solutions.next()
+    );
+}
+
+#[test]
+#[ignore = "fix me!"]
+fn shaded5x5() {
+    let mut solutions = solve("##..#\n#...#\n.....\n#...#\n##.##");
+    assert_eq!(
+        Some("##AA#\n#TAB#\nDIRAC\n#DOC#\n##N##".to_string()),
+        solutions.next()
     );
 }
 
@@ -38,13 +48,13 @@ fn ukacd() -> Vec<String> {
     BufReader::new(file)
         .lines()
         .map(Result::unwrap)
-        .filter(|word| word.is_ascii())
         .map(|word| {
             word.replace('-', "")
                 .replace('\'', "")
                 .replace('.', "")
                 .to_uppercase()
         })
+        .filter(|word| word.chars().all(|letter| letter >= 'A' && letter <= 'Z' ))
         .filter(|word| !word.is_empty())
         .collect()
 }
