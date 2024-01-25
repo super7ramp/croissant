@@ -26,11 +26,12 @@ impl CadicalSolver {
         if self.last_solution.is_empty() {
             return;
         }
-        // FIXME that's not as trivial as that, same solutions are returned. I don't understand why it doesn't work
-        //  nor why it "works" with logic-ng solver.
-        //  Idea: Try to filter on positive literals of the relevant variables (i.e. crossword cell variables) which
-        //  could be given as a hint in SolverBuilder.
-        let not_last_solution: Vec<i32> = self.last_solution.iter().map(|lit| -lit).collect();
+        let not_last_solution: Vec<i32> = self
+            .last_solution
+            .iter()
+            .enumerate()
+            .map(|(variable, value)| -value.signum() * ((variable + 1) as i32))
+            .collect();
         self.solver.add_clause(not_last_solution);
     }
 }

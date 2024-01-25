@@ -12,7 +12,6 @@ fn empty() {
 }
 
 #[test]
-#[ignore = "fix me!"]
 fn trivial() {
     let solutions = solve("...\n...\n...", ["AAA", "BBB", "CDE", "ABC", "ABD", "ABE"]);
     assert_solutions_eq(
@@ -27,14 +26,12 @@ fn trivial() {
 }
 
 #[test]
-#[ignore = "fix me!"]
 fn partially_prefilled_1x3() {
     let solutions = solve("AB.", ["ABC"]);
     assert_solutions_eq(["ABC"], solutions);
 }
 
 #[test]
-#[ignore = "fix me!"]
 fn partially_prefilled_3x3() {
     let solutions = solve("ABC\n...\n...", ["AAA", "BBB", "CDE", "ABC", "ABD", "ABE"]);
     assert_solutions_eq(["ABC\nABD\nABE"], solutions);
