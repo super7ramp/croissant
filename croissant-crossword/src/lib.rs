@@ -1,3 +1,5 @@
+#![feature(trait_upcasting)]
+
 // API
 pub mod crossword;
 
