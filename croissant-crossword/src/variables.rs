@@ -75,6 +75,11 @@ impl Variables {
         // variable must be strictly positive
     }
 
+    /// Returns all the cell variables.
+    pub fn cells(&self) -> Vec<usize> {
+        Vec::from_iter(1..(self.cell_count() + 1))
+    }
+
     /// Returns the variable associated to the given word at the given slot.
     ///
     /// Slot variable are put after cell variables, so first slot variable corresponds to the number

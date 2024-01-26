@@ -1,8 +1,10 @@
-use croissant_solver::{Solver, SolverBuilder, SolverConfigurator};
+use std::rc::Rc;
+
 use logicng::datastructures::Model;
 use logicng::formulas::{CType, EncodedFormula, FormulaFactory, Literal, Variable};
 use logicng::solver::minisat::MiniSat;
-use std::rc::Rc;
+
+use croissant_solver::{Solver, SolverBuilder, SolverConfigurator};
 
 /// Implementation of [SolverBuilder].
 pub struct LogicngSolverBuilder {
@@ -10,8 +12,8 @@ pub struct LogicngSolverBuilder {
     formula_factory: Rc<FormulaFactory>,
     /// The created formulas.
     formulas: Vec<EncodedFormula>,
-    /// The number of variables.
-    variables_count: usize,
+    /// The relevant variables of the problem.
+    relevant_variables: Vec<usize>,
 }
 
 impl Default for LogicngSolverBuilder {
@@ -28,7 +30,7 @@ impl LogicngSolverBuilder {
         LogicngSolverBuilder {
             formula_factory,
             formulas,
-            variables_count: 0,
+            relevant_variables: Vec::new(),
         }
     }
 
@@ -47,8 +49,8 @@ impl LogicngSolverBuilder {
 }
 
 impl SolverConfigurator for LogicngSolverBuilder {
-    fn allocate_variables(&mut self, variables_count: usize) {
-        self.variables_count = variables_count;
+    fn set_relevant_variables(&mut self, relevant_variables: Vec<usize>) {
+        self.relevant_variables = relevant_variables;
     }
 
     fn add_clause(&mut self, literals: &[i32]) {
@@ -102,7 +104,7 @@ impl SolverBuilder for LogicngSolverBuilder {
         Box::new(LogicngSolver::new(
             &self.formulas,
             self.formula_factory.clone(),
-            self.variables_count,
+            &self.relevant_variables,
         ))
     }
 }
@@ -113,8 +115,8 @@ pub struct LogicngSolver {
     solver: MiniSat,
     /// The helper to retrieve registered formula names.
     formula_factory: Rc<FormulaFactory>,
-    /// The number of variables (since it is hard to get the information from solver)
-    variables_count: usize,
+    /// The relevant variables of the problem.
+    relevant_variables: Vec<Variable>,
     /// Literals of the last solution.
     last_solution_literals: Vec<Literal>,
     /// Whether all solutions have been found.
@@ -126,14 +128,18 @@ impl LogicngSolver {
     fn new(
         formulas: &[EncodedFormula],
         formula_factory: Rc<FormulaFactory>,
-        variables_count: usize,
+        relevant_variables: &[usize],
     ) -> Self {
         let mut solver = MiniSat::new();
         solver.add_all(formulas, &formula_factory);
+        let relevant_variables = relevant_variables
+            .iter()
+            .map(|&id| formula_factory.var(id.to_string().as_str()))
+            .collect();
         LogicngSolver {
             solver,
             formula_factory,
-            variables_count,
+            relevant_variables,
             last_solution_literals: Vec::new(),
             no_more_solution: false,
         }
@@ -142,7 +148,7 @@ impl LogicngSolver {
     /// Solves the problem. Returns Some [Model] satisfying the problem, or [None] if no solution found.
     fn solve(&mut self) -> Option<Model> {
         self.solver.sat();
-        self.solver.model(None)
+        self.solver.model(Some(&self.relevant_variables))
     }
 
     /// Refutes the last solution, i.e. don't propose the last solution again.
@@ -164,7 +170,7 @@ impl LogicngSolver {
 
     /// Translates solver [Model] to a vector of variables states.
     fn variable_states_from(&self, model: Model) -> Vec<i32> {
-        let mut literals = vec![0; self.variables_count];
+        let mut literals = vec![0; self.max_relevant_variable() + 1];
         for positive_variable in model.pos() {
             literals[self.index_of(positive_variable)] = 1;
         }
@@ -172,6 +178,15 @@ impl LogicngSolver {
             literals[self.index_of(negative_variable)] = -1;
         }
         literals
+    }
+
+    /// Returns the relevant variable with the biggest id.
+    fn max_relevant_variable(&self) -> usize {
+        self.relevant_variables
+            .iter()
+            .map(|variable| self.index_of(variable))
+            .max()
+            .unwrap_or(0)
     }
 
     /// Returns the index of the given [Variable].

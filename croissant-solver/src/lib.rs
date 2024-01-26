@@ -4,6 +4,9 @@
 /// indicate the state of the corresponding variable. A positive value indicates that the corresponding variable is
 /// true; a negative value indicates that the corresponding variable is false.
 ///
+/// Implementation *may* return only the state of relevant variables defined by [SolverConfigurator::set_relevant_variables]
+/// instead of all the variables of the problems.
+///
 /// A solver can either be mutable - a [ConfigurableSolver] - or immutable and built using a [SolverBuilder]. Implement
 /// one of these two traits, at your convenience: Both can be used by the core library.
 pub trait Solver: Iterator<Item = Vec<i32>> {
@@ -19,6 +22,12 @@ pub trait SolverConfigurator {
     ///
     /// Default implementation does nothing.
     fn allocate_variables(&mut self, _variables_count: usize) {
+        // Do nothing by default.
+    }
+
+    /// Indicates which variables are relevant for the problem.
+    /// It is a hint for the solver, that can help implementation to avoid duplica
+    fn set_relevant_variables(&mut self, _relevant_variables: Vec<usize>) {
         // Do nothing by default.
     }
 
