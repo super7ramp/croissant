@@ -52,7 +52,7 @@ impl Slot {
 
     /// Returns the positions of the cells of this slot.
     pub fn positions(&self) -> Vec<Pos> {
-        (0..self.len())
+        (self.start..self.end)
             .map(|i| {
                 if self.is_down {
                     Pos::new(self.offset, i)
@@ -70,17 +70,17 @@ mod test {
 
     #[test]
     fn slot_positions_across() {
-        let slot = Slot::across(42, 0, 3, 1);
+        let slot = Slot::across(42, 1, 4, 1);
         let actual_positions = slot.positions();
-        let expected_positions = vec![Pos::new(0, 1), Pos::new(1, 1), Pos::new(2, 1)];
+        let expected_positions = vec![Pos::new(1, 1), Pos::new(2, 1), Pos::new(3, 1)];
         assert_eq!(expected_positions, actual_positions);
     }
 
     #[test]
     fn slot_positions_down() {
-        let slot = Slot::down(42, 0, 3, 1);
+        let slot = Slot::down(42, 1, 4, 1);
         let actual_positions = slot.positions();
-        let expected_positions = vec![Pos::new(1, 0), Pos::new(1, 1), Pos::new(1, 2)];
+        let expected_positions = vec![Pos::new(1, 1), Pos::new(1, 2), Pos::new(1, 3)];
         assert_eq!(expected_positions, actual_positions);
     }
 }

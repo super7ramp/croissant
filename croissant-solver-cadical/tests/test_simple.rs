@@ -38,7 +38,6 @@ fn partially_prefilled_3x3() {
 }
 
 #[test]
-#[ignore = "fix me!"]
 fn with_blocks() {
     let solutions = solve("ABC\n..#\n#..", ["AA", "BBB", "ABC", "AB", "BE"]);
     assert_solutions_eq(["ABC\nAB#\n#BE"], solutions);

@@ -12,18 +12,18 @@ fn empty3x3() {
 }
 
 #[test]
-#[ignore = "too long (2m53s at 1GHz)"]
+#[ignore = "too long (3m29s at 1GHz)"]
 fn empty4x4() {
     let mut solutions = solve("....\n....\n....\n....");
     assert_eq!(Some("EGIS\nGADI\nGLEG\nYEAH".to_string()), solutions.next());
 }
 
 #[test]
-#[ignore = "fix me!"]
+#[ignore = "too long (1m48s at 1GHz)"]
 fn shaded5x5() {
     let mut solutions = solve("##..#\n#...#\n.....\n#...#\n##.##");
     assert_eq!(
-        Some("##AA#\n#TAB#\nDIRAC\n#DOC#\n##N##".to_string()),
+        Some("##AB#\n#ECU#\nLARRY\n#SEY#\n##S##".to_string()),
         solutions.next()
     );
 }

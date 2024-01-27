@@ -4,8 +4,8 @@ use splr::Config;
 use croissant_solver::{Solver, SolverBuilder, SolverConfigurator};
 
 /// Implementation of [SolverBuilder].
-// TODO implement ConfigurableSolver instead? It would avoid clause copies but I don't see how to do it without
-//  re-implementing SolverIter into the struct
+// TODO don't use splr's SolverIter (there is now way to specify the relevant variables, so solutions may be repeated
+// TODO implement ConfigurableSolver instead
 pub struct SplrSolverBuilder {
     clauses: Vec<Vec<i32>>,
 }

@@ -246,9 +246,9 @@ mod test {
             HashMap::from([
                 (163, vec![1, 29, 57]), // "ABC" at first across slot <=> 'A' at (0,0) and 'B' at (1,0) and 'C' at (2,0)
                 (164, vec![4, 32, 60]), // "DEF" at first across slot <=> 'D' at (0,0) and 'E' at (1,0) and 'F' at (2,0)
-                (170, vec![82, 109]), // "AA" at second across slot <=> 'A' at (1,1) and 'A' at (2,1)
-                (171, vec![83, 110]), // "BB" at second across slot <=> 'B' at (1,1) and 'B' at (2,1)
-                (172, vec![84, 111]), // "CC" at second across slot <=> 'C' at (1,1) and 'C' at (2,1)
+                (170, vec![109, 136]), // "AA" at second across slot <=> 'A' at (1,1) and 'A' at (2,1)
+                (171, vec![110, 137]), // "BB" at second across slot <=> 'B' at (1,1) and 'B' at (2,1)
+                (172, vec![111, 138]), // "CC" at second across slot <=> 'C' at (1,1) and 'C' at (2,1)
                 (175, vec![28, 109]), // "AA" at first down slot <=> 'A' at (1,0) and 'A' at (1,1)
                 (176, vec![29, 110]), // "BB" at first down slot <=> 'B' at (1,0) and 'B' at (1,1)
                 (177, vec![30, 111]), // "CC" at first down slot <=> 'C' at (1,0) and 'C' at (1,1)
