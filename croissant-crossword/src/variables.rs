@@ -106,6 +106,7 @@ impl Variables {
                             _ => alphabet::letter_at(value),
                         };
                         output_grid.insert(row * (column_count + 1) + column, character);
+                        break;
                     }
                 }
             }
