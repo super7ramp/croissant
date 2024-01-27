@@ -139,7 +139,7 @@ mod test {
 
     #[test]
     fn cell() {
-        let grid = Grid::from("...\n...\n...").unwrap();
+        let grid = Grid::try_from("...\n...\n...").unwrap();
         let variables = Variables::new(grid, 100_000 /* does not matter here */);
 
         assert_eq!(1, variables.cell(0, 0, 0));
@@ -155,7 +155,7 @@ mod test {
 
     #[test]
     fn slot() {
-        let grid = Grid::from("...\n...\n...").unwrap();
+        let grid = Grid::try_from("...\n...\n...").unwrap();
         let variables = Variables::new(grid, 100_000);
 
         assert_eq!(244, variables.slot(0, 0));
@@ -170,28 +170,28 @@ mod test {
 
     #[test]
     fn cell_count() {
-        let grid = Grid::from("...\n...\n...").unwrap();
+        let grid = Grid::try_from("...\n...\n...").unwrap();
         let variables = Variables::new(grid, 100_000 /* does not matter here */);
         assert_eq!(243, variables.cell_count());
     }
 
     #[test]
     fn slot_count() {
-        let grid = Grid::from("...\n...\n...").unwrap();
+        let grid = Grid::try_from("...\n...\n...").unwrap();
         let variables = Variables::new(grid, 100_000);
         assert_eq!(600_000, variables.slot_count());
     }
 
     #[test]
     fn count() {
-        let grid = Grid::from("...\n...\n...").unwrap();
+        let grid = Grid::try_from("...\n...\n...").unwrap();
         let variables = Variables::new(grid, 100_000);
         assert_eq!(600_243, variables.count());
     }
 
     #[test]
     fn back_to_domain() {
-        let grid = Grid::from("...\n.#.\n...").unwrap();
+        let grid = Grid::try_from("...\n.#.\n...").unwrap();
         let variables = Variables::new(grid, 1);
         let mut model = vec![];
         for _cell in 0..3 {

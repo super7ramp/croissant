@@ -45,7 +45,7 @@ impl Grid {
 
     /// Attempts to build a [Grid] from the given string. Function returns the grid if given input is valid, otherwise
     /// it returns an error containing details about the validation failure.
-    pub fn from(value: &str) -> Result<Self, String> {
+    pub fn try_from(value: &str) -> Result<Self, String> {
         let rows: Vec<String> = value.split('\n').map(String::from).collect();
         Grid::new(rows)
     }
@@ -135,7 +135,7 @@ mod tests {
 
     #[test]
     fn grid_from_inconsistent_length() {
-        let grid_creation = Grid::from("ABC\n.#");
+        let grid_creation = Grid::try_from("ABC\n.#");
         let expected_err = Err(String::from(
             "Inconsistent number of columns: Row #1 has 2 columns but row #0 has 3",
         ));
@@ -144,26 +144,26 @@ mod tests {
 
     #[test]
     fn grid_from_invalid_letter() {
-        let grid_creation = Grid::from("ABC\n.#@");
+        let grid_creation = Grid::try_from("ABC\n.#@");
         let expected_err = Err(String::from("Invalid value at row #1: @"));
         assert_eq!(expected_err, grid_creation);
     }
 
     #[test]
     fn grid_row_count() {
-        let grid = Grid::from("A\nB").unwrap();
+        let grid = Grid::try_from("A\nB").unwrap();
         assert_eq!(2, grid.row_count())
     }
 
     #[test]
     fn grid_column_count() {
-        let grid = Grid::from("A\nB").unwrap();
+        let grid = Grid::try_from("A\nB").unwrap();
         assert_eq!(1, grid.column_count())
     }
 
     #[test]
     fn grid_slots_simple() {
-        let grid = Grid::from("...\n...\n...").unwrap();
+        let grid = Grid::try_from("...\n...\n...").unwrap();
         let actual_slots = grid.slots();
         let expected_slots = vec![
             Slot::across(0, 3, 0),
@@ -178,7 +178,7 @@ mod tests {
 
     #[test]
     fn grid_slots_asymmetrical() {
-        let grid = Grid::from("...\n...").unwrap();
+        let grid = Grid::try_from("...\n...").unwrap();
         let actual_slots = grid.slots();
         let expected_slots = vec![
             Slot::across(0, 3, 0),
@@ -192,7 +192,7 @@ mod tests {
 
     #[test]
     fn grid_slots_with_blocks() {
-        let grid = Grid::from(".#.\n...\n..#").unwrap();
+        let grid = Grid::try_from(".#.\n...\n..#").unwrap();
         let actual_slots = grid.slots();
         let expected_slots = vec![
             Slot::across(0, 3, 1),
@@ -206,7 +206,7 @@ mod tests {
 
     #[test]
     fn grid_slots_empty() {
-        let grid = Grid::from("").unwrap();
+        let grid = Grid::try_from("").unwrap();
         let actual_slots = grid.slots();
         let expected_slots: Vec<Slot> = vec![];
         assert_eq!(expected_slots, actual_slots);

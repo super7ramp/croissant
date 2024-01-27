@@ -176,7 +176,7 @@ mod test {
     #[test]
     fn constraints_add_one_letter_or_block_per_cell_clauses_to() {
         let mut test_solver = TestSolverConfigurator::new();
-        let grid = Grid::from("...\n...").unwrap();
+        let grid = Grid::try_from("...\n...").unwrap();
         let words = vec![];
         let variables = Variables::new(grid.clone(), words.len());
         let constraints = Constraints::new(grid, variables, &words);
@@ -221,7 +221,7 @@ mod test {
     #[test]
     fn add_one_word_per_slot_clauses_to() {
         let mut test_solver = TestSolverConfigurator::new();
-        let grid = Grid::from("...\n#..").unwrap();
+        let grid = Grid::try_from("...\n#..").unwrap();
         let words: Vec<String> = ["ABC", "DEF", "AA", "BB", "CC"]
             .iter()
             .map(|&word| word.to_string())
@@ -249,12 +249,12 @@ mod test {
                 (170, vec![109, 136]), // "AA" at second across slot <=> 'A' at (1,1) and 'A' at (2,1)
                 (171, vec![110, 137]), // "BB" at second across slot <=> 'B' at (1,1) and 'B' at (2,1)
                 (172, vec![111, 138]), // "CC" at second across slot <=> 'C' at (1,1) and 'C' at (2,1)
-                (175, vec![28, 109]), // "AA" at first down slot <=> 'A' at (1,0) and 'A' at (1,1)
-                (176, vec![29, 110]), // "BB" at first down slot <=> 'B' at (1,0) and 'B' at (1,1)
-                (177, vec![30, 111]), // "CC" at first down slot <=> 'C' at (1,0) and 'C' at (1,1)
-                (180, vec![55, 136]), // "AA" at second down slot <=> 'A' at (2,0) and 'A' at (2,1)
-                (181, vec![56, 137]), // "BB" at second down slot <=> 'B' at (2,0) and 'B' at (2,1)
-                (182, vec![57, 138]), // "CC" at second down slot <=> 'C' at (2,0) and 'C' at (2,1)
+                (175, vec![28, 109]),  // "AA" at first down slot <=> 'A' at (1,0) and 'A' at (1,1)
+                (176, vec![29, 110]),  // "BB" at first down slot <=> 'B' at (1,0) and 'B' at (1,1)
+                (177, vec![30, 111]),  // "CC" at first down slot <=> 'C' at (1,0) and 'C' at (1,1)
+                (180, vec![55, 136]),  // "AA" at second down slot <=> 'A' at (2,0) and 'A' at (2,1)
+                (181, vec![56, 137]),  // "BB" at second down slot <=> 'B' at (2,0) and 'B' at (2,1)
+                (182, vec![57, 138]),  // "CC" at second down slot <=> 'C' at (2,0) and 'C' at (2,1)
             ]),
             test_solver.and_clauses
         );
@@ -263,7 +263,7 @@ mod test {
     #[test]
     fn add_input_grid_constraints_are_satisfied_clauses_to() {
         let mut test_solver = TestSolverConfigurator::new();
-        let grid = Grid::from("A#.\n.#Z").unwrap();
+        let grid = Grid::try_from("A#.\n.#Z").unwrap();
         let words = vec![];
         let variables = Variables::new(grid.clone(), words.len());
         let constraints = Constraints::new(grid, variables, &words);

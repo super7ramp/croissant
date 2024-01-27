@@ -45,12 +45,7 @@ fn ukacd() -> Vec<String> {
     BufReader::new(file)
         .lines()
         .map(Result::unwrap)
-        .map(|word| {
-            word.replace('-', "")
-                .replace('\'', "")
-                .replace('.', "")
-                .to_uppercase()
-        })
+        .map(|word| word.replace(['-', '\'', '.'], "").to_uppercase())
         .filter(|word| word.chars().all(|letter| letter >= 'A' && letter <= 'Z'))
         .filter(|word| !word.is_empty())
         .collect()

@@ -62,15 +62,9 @@ impl<'wordlist> Crossword<'wordlist> {
     /// let result: Result<Crossword, String> = Crossword::try_from("A..\n.#.\n...", &words);
     /// ```
     pub fn try_from(input_grid: &str, words: &'wordlist Vec<String>) -> Result<Self, String> {
-        let grid_creation = Grid::from(input_grid);
-        if grid_creation.is_err() {
-            return Err(grid_creation.err().unwrap());
-        }
-
-        let grid = grid_creation.unwrap();
+        let grid = Grid::try_from(input_grid)?;
         let variables = Variables::new(grid.clone(), words.len());
         let constraints = Constraints::new(grid, variables.clone(), words);
-
         Ok(Crossword {
             variables,
             constraints,
