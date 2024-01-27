@@ -13,7 +13,7 @@ This is just a library yet; a CLI will come.
 ### Goals
 
 - ✅ Have fun!
-- ✅ Explore existing SAT solvers available in Rust:
+- ✅ Explore SAT solvers available in Rust:
     - ✅ [splr](https://crates.io/crates/splr)
     - ✅ [LogicNG](https://crates.io/crates/logicng)
     - ✅ [CaDiCaL](https://crates.io/crates/cadical)
