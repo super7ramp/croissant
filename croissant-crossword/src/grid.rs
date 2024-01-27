@@ -61,7 +61,7 @@ impl Grid {
     pub fn slots(&self) -> Vec<Slot> {
         let mut slots = vec![];
         slots.append(self.across_slots().as_mut());
-        slots.append(self.down_slots(slots.len()).as_mut());
+        slots.append(self.down_slots().as_mut());
         slots
     }
 
@@ -75,20 +75,20 @@ impl Grid {
             for column in 0..column_count {
                 if self.letter_at(row, column) == BLOCK {
                     if column - column_start >= slot::MIN_LEN {
-                        slots.push(Slot::across(slots.len(), column_start, column, row));
+                        slots.push(Slot::across(column_start, column, row));
                     }
                     column_start = column + 1;
                 }
             }
             if column_count - column_start >= slot::MIN_LEN {
-                slots.push(Slot::across(slots.len(), column_start, column_count, row));
+                slots.push(Slot::across(column_start, column_count, row));
             }
         }
         slots
     }
 
     /// Computes the down slots.
-    fn down_slots(&self, start_index: usize) -> Vec<Slot> {
+    fn down_slots(&self) -> Vec<Slot> {
         let mut slots = vec![];
         let row_count = self.row_count();
         let column_count = self.column_count();
@@ -97,23 +97,13 @@ impl Grid {
             for row in 0..row_count {
                 if self.letter_at(row, column) == BLOCK {
                     if row - row_start >= slot::MIN_LEN {
-                        slots.push(Slot::down(
-                            start_index + slots.len(),
-                            row_start,
-                            row,
-                            column,
-                        ));
+                        slots.push(Slot::down(row_start, row, column));
                     }
                     row_start = row + 1;
                 }
             }
             if row_count - row_start >= slot::MIN_LEN {
-                slots.push(Slot::down(
-                    start_index + slots.len(),
-                    row_start,
-                    row_count,
-                    column,
-                ));
+                slots.push(Slot::down(row_start, row_count, column));
             }
         }
         slots
@@ -176,12 +166,12 @@ mod tests {
         let grid = Grid::from("...\n...\n...").unwrap();
         let actual_slots = grid.slots();
         let expected_slots = vec![
-            Slot::across(0, 0, 3, 0),
-            Slot::across(1, 0, 3, 1),
-            Slot::across(2, 0, 3, 2),
-            Slot::down(3, 0, 3, 0),
-            Slot::down(4, 0, 3, 1),
-            Slot::down(5, 0, 3, 2),
+            Slot::across(0, 3, 0),
+            Slot::across(0, 3, 1),
+            Slot::across(0, 3, 2),
+            Slot::down(0, 3, 0),
+            Slot::down(0, 3, 1),
+            Slot::down(0, 3, 2),
         ];
         assert_eq!(expected_slots, actual_slots)
     }
@@ -191,11 +181,11 @@ mod tests {
         let grid = Grid::from("...\n...").unwrap();
         let actual_slots = grid.slots();
         let expected_slots = vec![
-            Slot::across(0, 0, 3, 0),
-            Slot::across(1, 0, 3, 1),
-            Slot::down(2, 0, 2, 0),
-            Slot::down(3, 0, 2, 1),
-            Slot::down(4, 0, 2, 2),
+            Slot::across(0, 3, 0),
+            Slot::across(0, 3, 1),
+            Slot::down(0, 2, 0),
+            Slot::down(0, 2, 1),
+            Slot::down(0, 2, 2),
         ];
         assert_eq!(expected_slots, actual_slots)
     }
@@ -205,11 +195,11 @@ mod tests {
         let grid = Grid::from(".#.\n...\n..#").unwrap();
         let actual_slots = grid.slots();
         let expected_slots = vec![
-            Slot::across(0, 0, 3, 1),
-            Slot::across(1, 0, 2, 2),
-            Slot::down(2, 0, 3, 0),
-            Slot::down(3, 1, 3, 1),
-            Slot::down(4, 0, 2, 2),
+            Slot::across(0, 3, 1),
+            Slot::across(0, 2, 2),
+            Slot::down(0, 3, 0),
+            Slot::down(1, 3, 1),
+            Slot::down(0, 2, 2),
         ];
         assert_eq!(expected_slots, actual_slots)
     }

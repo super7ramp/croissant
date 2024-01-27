@@ -67,11 +67,11 @@ impl<'wordlist> Constraints<'wordlist> {
     pub fn add_one_word_per_slot_clauses_to(&self, solver: &mut dyn SolverConfigurator) {
         let mut slot_literals_buffer = Vec::with_capacity(self.words.len());
         let mut cell_literals_buffer = Vec::with_capacity(CELL_LITERALS_BUFFER_LENGTH);
-        for slot in self.grid.slots() {
+        for (slot_index, slot) in self.grid.slots().iter().enumerate() {
             for (word_index, word) in self.words.iter().enumerate() {
                 // TODO check for interruption
                 if word.len() == slot.len() {
-                    let slot_literal = self.variables.slot(slot.index(), word_index) as i32;
+                    let slot_literal = self.variables.slot(slot_index, word_index) as i32;
                     slot_literals_buffer.push(slot_literal);
 
                     self.fill_cell_literals_conjunction(&mut cell_literals_buffer, &slot, word);
