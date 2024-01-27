@@ -64,7 +64,7 @@ fn impossible_no_candidate() {
 /// Solves the given grid using the cadical solver.
 fn solve<const N: usize>(grid: &str, words: [&str; N]) -> CrosswordSolutions {
     let words_vec = words.iter().map(|&word| word.to_string()).collect();
-    let crossword = Crossword::from(grid, &words_vec).unwrap();
+    let crossword = Crossword::try_from(grid, &words_vec).unwrap();
     let solver = Box::new(CadicalSolver::new());
     crossword.solve_with(solver)
 }

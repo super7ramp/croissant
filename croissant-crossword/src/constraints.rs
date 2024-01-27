@@ -74,7 +74,7 @@ impl<'wordlist> Constraints<'wordlist> {
                     let slot_literal = self.variables.slot(slot_index, word_index) as i32;
                     slot_literals_buffer.push(slot_literal);
 
-                    self.fill_cell_literals_conjunction(&mut cell_literals_buffer, &slot, word);
+                    self.fill_cell_literals_conjunction(&mut cell_literals_buffer, slot, word);
                     solver.add_and(slot_literal, &cell_literals_buffer);
                     cell_literals_buffer.clear();
                 } // else skip this word since it obviously doesn't match the slot

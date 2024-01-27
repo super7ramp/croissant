@@ -43,9 +43,25 @@ pub struct Crossword<'wordlist> {
 
 impl<'wordlist> Crossword<'wordlist> {
     /// Creates a new crossword from given grid and word list.
-    // TODO specify input grid format
-    // TODO specify authorized alphabet
-    pub fn from(input_grid: &str, words: &'wordlist Vec<String>) -> Result<Self, String> {
+    ///
+    /// ## Arguments
+    ///
+    /// - `input_grid`: A string representing the grid rows. '.' indicates a blank cell, '#' indicates a block.
+    /// - `words`: The word list. Must contain words with only letters from 'A' to 'Z'. Other words will be rejected.
+    ///
+    /// ## Returns
+    ///
+    /// A [Result] with the created Crossword, or a String containing the error details.
+    ///
+    /// ## Example
+    ///
+    /// ```
+    /// use croissant_crossword::crossword::Crossword;
+    ///
+    /// let words = vec!["AAA".to_string()];
+    /// let result: Result<Crossword, String> = Crossword::try_from("A..\n.#.\n...", &words);
+    /// ```
+    pub fn try_from(input_grid: &str, words: &'wordlist Vec<String>) -> Result<Self, String> {
         let grid_creation = Grid::from(input_grid);
         if grid_creation.is_err() {
             return Err(grid_creation.err().unwrap());
@@ -152,7 +168,7 @@ mod test {
             .iter()
             .map(|&word| word.to_string())
             .collect();
-        let crossword = Crossword::from("...\n...", &words);
+        let crossword = Crossword::try_from("...\n...", &words);
         assert!(crossword.is_ok(), "Creation failed");
     }
 
@@ -162,7 +178,7 @@ mod test {
             .iter()
             .map(|&word| word.to_string())
             .collect();
-        let crossword = Crossword::from("___" /* invalid grid */, &words);
+        let crossword = Crossword::try_from("___" /* invalid grid */, &words);
         assert!(
             crossword.is_err(),
             "Creation succeeded, while it should have failed"
@@ -175,7 +191,7 @@ mod test {
             .iter()
             .map(|&word| word.to_string())
             .collect();
-        let crossword = Crossword::from("...\n...", &words).unwrap();
+        let crossword = Crossword::try_from("...\n...", &words).unwrap();
         let stub_solver = Box::new(StubSolver {});
 
         let mut solutions = crossword.solve_with(stub_solver);
@@ -188,7 +204,7 @@ mod test {
             .iter()
             .map(|&word| word.to_string())
             .collect();
-        let crossword = Crossword::from("...\n...", &words).unwrap();
+        let crossword = Crossword::try_from("...\n...", &words).unwrap();
         let stub_solver_builder = Box::new(StubSolverBuilder {});
 
         let mut solutions = crossword.solve_with_solver_built_by(stub_solver_builder);

@@ -31,7 +31,7 @@ fn shaded5x5() {
 /// Solves the given grid using the logic-ng solver.
 fn solve(grid: &str) -> CrosswordSolutions {
     let words = ukacd();
-    let crossword = Crossword::from(grid, &words).unwrap();
+    let crossword = Crossword::try_from(grid, &words).unwrap();
     let solver = Box::new(LogicngSolverBuilder::new());
     crossword.solve_with_solver_built_by(solver)
 }
