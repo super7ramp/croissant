@@ -6,17 +6,15 @@ This is *very* slow.
 
 This is unusable.
 
-This is just a library yet; a CLI will come.
-
 *This is a toy project.*
 
 ### Goals
 
 - ✅ Have fun!
 - ✅ Explore SAT solvers available in Rust:
-    - ✅ [splr](https://crates.io/crates/splr)
-    - ✅ [LogicNG](https://crates.io/crates/logicng)
-    - ✅ [CaDiCaL](https://crates.io/crates/cadical)
+    - ✅ [Splr](https://crates.io/crates/Splr)
+    - ✅ [LogicNG](https://crates.io/crates/Logicng)
+    - ✅ [CaDiCaL](https://crates.io/crates/Cadical)
 - 🚧 Implement a CLI using [clap](https://crates.io/crates/clap).
 - 🚧 Understand Cargo feature configuration: Put each bundled solver behind a feature flag.
 - 🚧 Scratch dynamic loading in Rust: Allow to use solvers loaded from shared libraries put in some folder.

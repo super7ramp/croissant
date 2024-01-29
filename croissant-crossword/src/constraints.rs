@@ -69,7 +69,6 @@ impl<'wordlist> Constraints<'wordlist> {
         let mut cell_literals_buffer = Vec::with_capacity(CELL_LITERALS_BUFFER_LENGTH);
         for (slot_index, slot) in self.grid.slots().iter().enumerate() {
             for (word_index, word) in self.words.iter().enumerate() {
-                // TODO check for interruption
                 if word.len() == slot.len() {
                     let slot_literal = self.variables.slot(slot_index, word_index) as i32;
                     slot_literals_buffer.push(slot_literal);

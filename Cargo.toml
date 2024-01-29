@@ -1,5 +1,7 @@
 [workspace]
 members = [
+    # The application
+    "croissant-cli",
     # Core
     "croissant-crossword",
     # Solver SPI
