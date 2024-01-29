@@ -13,20 +13,31 @@ use std::path::PathBuf;
 struct Args {
     /// The grid as a string; Each new line is a new row, '.' is a blank, '#' is a block.
     grid: String,
-    /// The path to the word list.
+    /// The path to the word list; File must contain one word per line and nothing else.
     #[arg(short, long)]
     wordlist: Option<PathBuf>,
     /// The solver to use.
-    #[arg(short, long, default_value = "logicng")]
-    solver: String,
+    #[arg(short, long, default_value_t, value_enum)]
+    solver: SolverId,
     /// The desired number of solutions.
     #[arg(short, long, default_value_t = 1)]
     count: usize,
 }
 
+#[derive(clap::ValueEnum, Clone, Debug, Default)]
+enum SolverId {
+    /// The slow; Its name sounds good though, doesn't it?
+    Cadical,
+    /// The less slow and thus the default; Congrats!
+    #[default]
+    Logicng,
+    /// The slowest and buggiest, but that's why we love it ❤️
+    Splr,
+}
+
 fn main() {
     let args = Args::parse();
-    let words = args.wordlist.map(|path| read_words_at(path)).unwrap_or_else(|| ukacd());
+    let words = args.wordlist.map(read_words_at).unwrap_or_else(ukacd);
     let crossword = Crossword::try_from(args.grid.as_str(), &words).unwrap();
     let mut solutions = solve(crossword, args.solver);
     iterate_and_print(args.count, &mut solutions);
@@ -57,22 +68,21 @@ fn read<T: Read>(data: T) -> Vec<String> {
 }
 
 /// Solves (lazily) the grid with the solver
-fn solve(crossword: Crossword, solver_name: String) -> CrosswordSolutions {
-    match solver_name.as_str() {
-        // TODO create an enum
-        "cadical" => crossword.solve_with(Box::new(CadicalSolver::new())),
-        "logicng" => {
+fn solve(crossword: Crossword, solver_id: SolverId) -> CrosswordSolutions {
+    match solver_id {
+        SolverId::Cadical => crossword.solve_with(Box::new(CadicalSolver::new())),
+        SolverId::Logicng => {
             let solver_builder = Box::new(LogicngSolverBuilder::new());
             crossword.solve_with_solver_built_by(solver_builder)
         }
-        "splr" => {
+        SolverId::Splr => {
             let solver_builder = Box::new(SplrSolverBuilder::new());
             crossword.solve_with_solver_built_by(solver_builder)
         }
-        unknown_solver => panic!("Unknown solver: {unknown_solver}"),
     }
 }
 
+/// Iterates on given [CrosswordSolutions] and prints as many solutions as given `count` and as possible.
 fn iterate_and_print(count: usize, solutions: &mut CrosswordSolutions) {
     for number in 1..=count {
         let solution = solutions.next();

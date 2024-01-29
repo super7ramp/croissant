@@ -12,3 +12,6 @@ members = [
     "croissant-solver-splr",
 ]
 resolver = "2"
+
+[profile.release]
+lto = true
