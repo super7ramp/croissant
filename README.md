@@ -76,7 +76,7 @@ Enjoy!
     - ✅ [LogicNG](https://crates.io/crates/Logicng)
     - ✅ [CaDiCaL](https://crates.io/crates/Cadical)
 - ✅ Implement a CLI using [clap](https://crates.io/crates/clap).
-- 🚧 Understand Cargo feature configuration: Put each bundled solver behind a feature flag.
+- ✅ Understand Cargo feature configuration: Put each bundled solver behind a feature flag.
 - 🚧 Scratch dynamic loading in Rust: Allow to use solvers loaded from shared libraries put in some folder.
 - 🚧 Document and publish a crate.
 

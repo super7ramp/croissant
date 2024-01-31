@@ -1,7 +1,9 @@
 use clap::Parser;
 use croissant_crossword::crossword::{Crossword, CrosswordSolutions};
+#[cfg(feature = "solver-cadical")]
 use croissant_solver_cadical::CadicalSolver;
 use croissant_solver_logicng::LogicngSolverBuilder;
+#[cfg(feature = "solver-splr")]
 use croissant_solver_splr::SplrSolverBuilder;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Read};
@@ -27,11 +29,13 @@ struct Args {
 #[derive(clap::ValueEnum, Clone, Debug, Default)]
 enum SolverId {
     /// The slow; Its name sounds good though, doesn't it?
+    #[cfg(feature = "solver-cadical")]
     Cadical,
     /// The less slow and thus the default; Congrats!
     #[default]
     Logicng,
     /// The slowest and buggiest, but that's why we love it ❤️
+    #[cfg(feature = "solver-splr")]
     Splr,
 }
 
@@ -70,11 +74,13 @@ fn read<T: Read>(data: T) -> Vec<String> {
 /// Solves (lazily) the grid with the solver
 fn solve(crossword: Crossword, solver_id: SolverId) -> CrosswordSolutions {
     match solver_id {
+        #[cfg(feature = "solver-cadical")]
         SolverId::Cadical => crossword.solve_with(Box::new(CadicalSolver::new())),
         SolverId::Logicng => {
             let solver_builder = Box::new(LogicngSolverBuilder::new());
             crossword.solve_with_solver_built_by(solver_builder)
         }
+        #[cfg(feature = "solver-splr")]
         SolverId::Splr => {
             let solver_builder = Box::new(SplrSolverBuilder::new());
             crossword.solve_with_solver_built_by(solver_builder)

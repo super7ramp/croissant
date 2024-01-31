@@ -6,6 +6,11 @@ edition = "2021"
 [dependencies]
 clap = { version = "4.4.18", features = ["derive"] }
 croissant-crossword = { path = "../croissant-crossword", version = "0.1.0" }
-croissant-solver-cadical = { path = "../croissant-solver-cadical", version = "0.1.0" }
+croissant-solver-cadical = { path = "../croissant-solver-cadical", version = "0.1.0", optional = true }
 croissant-solver-logicng = { path = "../croissant-solver-logicng", version = "0.1.0" }
-croissant-solver-splr = { path = "../croissant-solver-splr", version = "0.1.0" }
+croissant-solver-splr = { path = "../croissant-solver-splr", version = "0.1.0" , optional = true}
+
+[features]
+default = ["solver-cadical", "solver-splr"]
+solver-cadical = [ "dep:croissant-solver-cadical" ]
+solver-splr = [ "dep:croissant-solver-splr" ]
