@@ -62,11 +62,12 @@ fn ukacd() -> Vec<String> {
 
 /// Reads and sanitizes words from a source supporting [Read].
 fn read<T: Read>(data: T) -> Vec<String> {
+    let alphabet = 'A'..='Z';
     BufReader::new(data)
         .lines()
         .map(Result::unwrap)
         .map(|word| word.replace(['-', '\'', '.'], "").to_uppercase())
-        .filter(|word| word.chars().all(|letter| letter >= 'A' && letter <= 'Z'))
+        .filter(|word| word.chars().all(|letter| alphabet.contains(&letter)))
         .filter(|word| !word.is_empty())
         .collect()
 }
