@@ -1,4 +1,7 @@
-/// A SAT solver.
+//! This library defines the interface of a SAT solver. It is meant to be consumed by
+//! [croissant-crossword](https://crates.io/crates/croissant-crossword/).
+
+/// Definition of a SAT solver.
 ///
 /// It is an iterator over the models satisfying the problem. A model is a vector indexed by the variables, whose values
 /// indicate the state of the corresponding variable. A positive value indicates that the corresponding variable is
@@ -8,14 +11,15 @@
 /// instead of all the variables of the problems.
 ///
 /// A solver can either be mutable - a [ConfigurableSolver] - or immutable and built using a [SolverBuilder]. Implement
-/// one of these two traits, at your convenience: Both can be used by the core library.
+/// one of these two traits, at your convenience: Both can be used by
+/// [croissant-crossword](https://crates.io/crates/croissant-crossword/).
 pub trait Solver: Iterator<Item = Vec<i32>> {
     // Nothing more than an iterator on the solutions for now.
 }
 
 /// Definition of a solver configurator.
 ///
-/// The main function to implement is [add_clause]. Other functions contain default implementations
+/// The main function to implement is [add_clause](Self::add_clause). Other functions contain default implementations
 /// which may be overridden for better performances.
 pub trait SolverConfigurator {
     /// Gives a hint about the number of variables. May be implemented to optimize performance.
@@ -38,8 +42,8 @@ pub trait SolverConfigurator {
     ///
     /// An *exactly-one* clause is equivalent to an *at-least-one* and a *at-most-one* clauses.
     ///
-    /// Default implementation creates these corresponding clauses and add them using [add_clause] and [at_most_one].
-    /// Implementors may override this function for better performances
+    /// Default implementation creates these corresponding clauses and add them using [add_clause](Self::add_clause) and
+    /// [add_at_most_one](Self::add_at_most_one). Implementors may override this function for better performances.
     fn add_exactly_one(&mut self, literals: &[i32]) {
         self.add_clause(literals);
         self.add_at_most_one(literals);
@@ -51,7 +55,7 @@ pub trait SolverConfigurator {
     /// This is equivalent to saying that for all pairs of literals, *at-least-one* is false. In other words, an
     /// *at-most-one* clause is equivalent to all the *at-least-one* clauses for each pair of negated literals.
     ///
-    /// Default implementation creates these corresponding clauses and add them using [add_clause].
+    /// Default implementation creates these corresponding clauses and add them using [add_clause](Self::add_clause).
     /// Implementors may override this function for better performances
     fn add_at_most_one(&mut self, literals: &[i32]) {
         let mut clause_buffer = Vec::with_capacity(2);
@@ -72,7 +76,7 @@ pub trait SolverConfigurator {
     /// (￢literal ∨ conjunction\[1\]) ∧ ... ∧ (￢literal ∨ conjunction\[1\]) ∧ (￢conjunction\[0\]
     /// ∨ ￢conjunction\[1\] ∨ ... ∨ ￢conjunction\[n\] ∨ literal)*
     ///
-    /// Default implementation adds these corresponding clauses using [add_clause]. Implementors
+    /// Default implementation adds these corresponding clauses using [add_clause](Self::add_clause). Implementors
     /// may override this function for better performance.
     fn add_and(&mut self, literal: i32, conjunction: &[i32]) {
         let mut last_clause = Vec::with_capacity(conjunction.len() + 1);
@@ -85,7 +89,7 @@ pub trait SolverConfigurator {
     }
 }
 
-/// A configurable [Solver].
+/// Definition of a configurable [Solver].
 ///
 /// A mutable solver if you will. Implement this, unless you're adventurous and you want to try implementing
 /// [SolverBuilder] instead.
@@ -93,7 +97,7 @@ pub trait ConfigurableSolver: SolverConfigurator + Solver {
     // Marker trait.
 }
 
-/// A [Solver] builder.
+/// Definition of a [Solver] builder.
 ///
 /// Implement this if you can and want to efficiently register and share clauses between solver instances. If not,
 /// then implementing this trait will probably lead to a costly copy of the clauses between the builder and the solver
