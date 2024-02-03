@@ -77,7 +77,8 @@ Enjoy!
     - ✅ [CaDiCaL](https://crates.io/crates/Cadical)
 - ✅ Implement a CLI using [clap](https://crates.io/crates/clap).
 - ✅ Understand Cargo feature configuration: Put each bundled solver behind a feature flag.
-- 🚧 Scratch dynamic loading in Rust: Allow to use solvers loaded from shared libraries put in some folder.
+- 🚧 Discover WebAssembly: Compile Croissant to wasm and call from a simple web application.
+- 🚧 Scratch dynamic loading in Rust: Discover and use solvers compiled as shared libraries.
 - 🚧 Document and publish a crate.
 
 ### Other Projects
