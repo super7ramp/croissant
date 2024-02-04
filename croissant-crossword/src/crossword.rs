@@ -1,3 +1,32 @@
+//! # A crossword, defined as a boolean satisfiability problem
+//!
+//! It is a basic definition of the problem, without any optimization attempt. As such, it is quite
+//! slow to solve. The problem definition follows.
+//!
+//! ## Variables
+//!
+//! - Cell variables: For each pair (cell,letter) is associated a variable.
+//! - Slot variables: For each pair (slot,word) is associated a variable. They are placed "after"
+//!   the cell variables in the model.
+//!
+//! ## Constraints
+//!
+//! 1. Each cell must contain one and only one letter from the alphabet or a block.
+//! 2. Each slot must contain one and only one word from the input word list. This is the tricky
+//!    part, as there must be a correspondence between cell variables and slot variables. Basically,
+//!    each slot variable - i.e. a representation of a (slot,word) pair - is equivalent to a
+//!    conjunction (= and) of cell variables - i.e. (cell,letter) pairs.
+//! 3. Prefilled cells must be kept as is.
+//!
+//! ## See Also
+//!
+//! - [Martin Hořeňovský's introduction to SAT solvers](https://codingnest.com/modern-sat-solvers-fast-neat-underused-part-1-of-n/). It very clearly explains the basics with the
+//!   example of the sudoku problem. Associated code is in C++.
+//! - [Sudoku4j](https://gitlab.com/super7ramp/sudoku4j), which is an example sudoku solver in Java.
+//!   (It is a translation in Java of Martin Hořeňovský's example sudoku C++ solver.)
+//! - [Croiseur's crossword solver backed by Sat4j](https://gitlab.com/super7ramp/croiseur/-/tree/master/croiseur-solver/croiseur-solver-sat),
+//!   which is the original implementation in Java of this program.
+
 use std::ops::DerefMut;
 
 use croissant_solver::SolverBuilder;
@@ -7,35 +36,7 @@ use crate::constraints::Constraints;
 use crate::grid::Grid;
 use crate::variables::Variables;
 
-///
-/// # A crossword, defined as a boolean satisfiability problem
-///
-/// It is a basic definition of the problem, without any optimization attempt. As such, it is quite
-/// slow to [solve]. The problem definition follows.
-///
-/// ## Variables
-///
-/// - Cell variables: For each pair (cell,letter) is associated a variable.
-/// - Slot variables: For each pair (slot,word) is associated a variable. They are placed "after"
-///   the cell variables in the model.
-///
-/// ## Constraints
-///
-/// 1. Each cell must contain one and only one letter from the alphabet or a block.
-/// 2. Each slot must contain one and only one word from the input word list. This is the tricky
-///    part, as there must be a correspondence between cell variables and slot variables. Basically,
-///    each slot variable - i.e. a representation of a (slot,word) pair - is equivalent to a
-///    conjunction (= and) of cell variables - i.e. (cell,letter) pairs.
-/// 3. Prefilled cells must be kept as is.
-///
-/// ## See Also
-///
-/// - [Martin Hořeňovský's introduction to SAT solvers](https://codingnest.com/modern-sat-solvers-fast-neat-underused-part-1-of-n/). It very clearly explains the basics with the
-///   example of the sudoku problem. Associated code is in C++.
-/// - [Sudoku4j](https://gitlab.com/super7ramp/sudoku4j), which is an example sudoku solver in Java.
-///   (It is a translation in Java of Martin Hořeňovský's example sudoku C++ solver.)
-/// - [Croiseur's crossword solver backed by Sat4j](https://gitlab.com/super7ramp/croiseur/-/tree/master/croiseur-solver/croiseur-solver-sat),
-///   which is the original implementation in Java of this program.
+/// The crossword structure, holding variables and constraints information.
 pub struct Crossword<'wordlist> {
     variables: Variables,
     constraints: Constraints<'wordlist>,
