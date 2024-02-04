@@ -77,7 +77,7 @@ Enjoy!
     - ✅ [CaDiCaL](https://crates.io/crates/Cadical)
 - ✅ Implement a CLI using [clap](https://crates.io/crates/clap).
 - ✅ Understand Cargo feature configuration: Put each bundled solver behind a feature flag.
-- 🚧 Discover WebAssembly: Compile Croissant to wasm and call from a simple web application.
+- 🚧 Discover WebAssembly: Compile Croissant to wasm and call it from a simple web application.
 - 🚧 Scratch dynamic loading in Rust: Discover and use solvers compiled as shared libraries.
 - 🚧 Document and publish a crate.
 
