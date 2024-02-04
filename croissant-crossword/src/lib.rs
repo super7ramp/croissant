@@ -15,7 +15,7 @@
 //! use croissant_solver_logicng::LogicngSolverBuilder;
 //!
 //! // Crossword construction
-//! let words = vec!["AAA".to_string()];
+//! let words = ["AAA".to_string()];
 //! let crossword = Crossword::try_from("A..\n.#.\n...", &words).unwrap();
 //!
 //! // Solving using logicng solver (not included)

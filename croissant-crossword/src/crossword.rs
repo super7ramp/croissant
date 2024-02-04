@@ -59,10 +59,10 @@ impl<'wordlist> Crossword<'wordlist> {
     /// ```
     /// use croissant_crossword::crossword::Crossword;
     ///
-    /// let words = vec!["AAA".to_string()];
+    /// let words = ["AAA".to_string()];
     /// let result: Result<Crossword, String> = Crossword::try_from("A..\n.#.\n...", &words);
     /// ```
-    pub fn try_from(input_grid: &str, words: &'wordlist Vec<String>) -> Result<Self, String> {
+    pub fn try_from(input_grid: &str, words: &'wordlist [String]) -> Result<Self, String> {
         let grid = Grid::try_from(input_grid)?;
         let variables = Variables::new(grid.clone(), words.len());
         let constraints = Constraints::new(grid, variables.clone(), words);
@@ -169,7 +169,7 @@ mod test {
 
     #[test]
     fn new_err() {
-        let words = ["ABC", "DEF", "AA", "BB", "CC"]
+        let words: Vec<String> = ["ABC", "DEF", "AA", "BB", "CC"]
             .iter()
             .map(|&word| word.to_string())
             .collect();
@@ -182,7 +182,7 @@ mod test {
 
     #[test]
     fn solve_with() {
-        let words = ["ABC", "DEF", "AA", "BB", "CC"]
+        let words: Vec<String> = ["ABC", "DEF", "AA", "BB", "CC"]
             .iter()
             .map(|&word| word.to_string())
             .collect();
@@ -195,7 +195,7 @@ mod test {
 
     #[test]
     fn solve_with_builder() {
-        let words = ["ABC", "DEF", "AA", "BB", "CC"]
+        let words: Vec<String> = ["ABC", "DEF", "AA", "BB", "CC"]
             .iter()
             .map(|&word| word.to_string())
             .collect();

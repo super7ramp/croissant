@@ -58,13 +58,9 @@ pub trait SolverConfigurator {
     /// Default implementation creates these corresponding clauses and add them using [add_clause](Self::add_clause).
     /// Implementors may override this function for better performances
     fn add_at_most_one(&mut self, literals: &[i32]) {
-        let mut clause_buffer = Vec::with_capacity(2);
         for i in 0..literals.len() {
             for j in (i + 1)..literals.len() {
-                clause_buffer.push(-literals[i]);
-                clause_buffer.push(-literals[j]);
-                self.add_clause(&clause_buffer);
-                clause_buffer.clear();
+                self.add_clause(&[-literals[i], -literals[j]]);
             }
         }
     }

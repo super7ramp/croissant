@@ -27,7 +27,7 @@ use crate::{alphabet, grid};
 pub struct Constraints<'wordlist> {
     grid: Grid,
     variables: Variables,
-    words: &'wordlist Vec<String>,
+    words: &'wordlist [String],
 }
 
 /// The length of the buffer used to store cell literals corresponding to a word in a slot. Most
@@ -36,7 +36,7 @@ const CELL_LITERALS_BUFFER_LENGTH: usize = 20;
 
 impl<'wordlist> Constraints<'wordlist> {
     /// Constructs a new instance.
-    pub fn new(grid: Grid, variables: Variables, words: &'wordlist Vec<String>) -> Self {
+    pub fn new(grid: Grid, variables: Variables, words: &'wordlist [String]) -> Self {
         Constraints {
             grid,
             variables,
@@ -110,7 +110,6 @@ impl<'wordlist> Constraints<'wordlist> {
         &self,
         solver: &mut dyn SolverConfigurator,
     ) {
-        let mut literals_buffer: Vec<i32> = Vec::with_capacity(1);
         for row in 0..self.grid.row_count() {
             for column in 0..self.grid.column_count() {
                 let prefilled_letter = self.grid.letter_at(row, column);
@@ -125,9 +124,7 @@ impl<'wordlist> Constraints<'wordlist> {
                         self.variables.cell(row, column, letter_index) as i32
                     }
                 };
-                literals_buffer.push(literal);
-                solver.add_clause(&literals_buffer);
-                literals_buffer.clear();
+                solver.add_clause(&[literal]);
             }
         }
     }
