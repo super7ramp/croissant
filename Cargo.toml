@@ -10,6 +10,8 @@ members = [
     "croissant-solver-cadical",
     "croissant-solver-logicng",
     "croissant-solver-splr",
+    # WebAssembly bindings
+    "croissant-wasm",
 ]
 resolver = "2"
 
