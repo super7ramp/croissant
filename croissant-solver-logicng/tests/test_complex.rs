@@ -39,7 +39,9 @@ fn solve(grid: &str) -> CrosswordSolutions {
 /// Reads the UKACD word list.
 fn ukacd() -> Vec<String> {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("tests")
+        .parent()
+        .unwrap()
+        .join("wordlist")
         .join("UKACD18plus.txt");
     let file = File::open(path).expect("Test word list not found");
     BufReader::new(file)

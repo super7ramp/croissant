@@ -55,8 +55,7 @@ fn read_words_at(path: PathBuf) -> Vec<String> {
 
 /// Reads words from bundled UKACD.
 fn ukacd() -> Vec<String> {
-    // FIXME it's quite brittle to reference file in a test directory of another project, find a way to share resource
-    let bytes_of_ukacd = include_bytes!("../../croissant-solver-logicng/tests/UKACD18plus.txt");
+    let bytes_of_ukacd = include_bytes!("../../wordlist/UKACD18plus.txt");
     read(&bytes_of_ukacd[..])
 }
 
