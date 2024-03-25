@@ -1,19 +1,23 @@
 import Crossword from '@jaredreisinger/react-crossword';
 import React, {Fragment, useRef, useState} from "react";
-import {solve} from "croissant-wasm";
 import './App.css'
 
 function App() {
-    const [crosswordData, setCrosswordData] = useState(initialData())
+    const [grid, setGrid] = useState(initialData())
     const crosswordRef = useRef()
     return (
         <>
             <div className="App">
                 <h1>This is 🥐</h1>
-                <Crossword ref={crosswordRef} data={crosswordData}/>
+                <Crossword ref={crosswordRef} data={grid}/>
                 <div className="button-container">
-                    <button className="btn btn-primary btn-lg" onClick={() => autoFill(crosswordData)}>Auto-fill 🪄</button>
-                    <button className="btn btn-danger btn-lg" onClick={() => crosswordRef.current.reset()}>Reset</button>
+                    <button className="btn btn-primary btn-lg"
+                            onClick={async () => setGrid(await filled(grid))}>
+                        Auto-fill 🪄
+                    </button>
+                    <button className="btn btn-danger btn-lg" onClick={() => crosswordRef.current.reset()}>
+                        Reset
+                    </button>
                 </div>
             </div>
         </>
@@ -77,9 +81,26 @@ function initialData() {
     };
 }
 
-function autoFill({data}) {
-    const grid = ""
-    const solvedGrid = solve(grid)
+function filled({grid}) {
+    console.log("Asynchronous solving", grid)
+    return import("croissant-wasm")
+        .then((wasm) => wasm.solve(solverInputFrom(grid)))
+        .then(console.log)
+        .then((solverOutput) => gridFrom(solverOutput))
+        .catch(e => {
+            console.error("Error calling solver:", e)
+            return initialData()
+        })
+}
+
+function solverInputFrom(grid) {
+    // TODO implement
+    return ""
+}
+
+function gridFrom(solverOutput) {
+    // TODO implement
+    return initialData()
 }
 
 export default App;
