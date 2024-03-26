@@ -1,26 +1,24 @@
 import Crossword from '@jaredreisinger/react-crossword';
-import React, {Fragment, useRef, useState} from "react";
+import React, {Fragment, useRef, useState} from 'react';
+import {solve} from 'croissant-wasm'
 import './App.css'
 
-function App() {
+export default function App() {
     const [grid, setGrid] = useState(initialData())
     const crosswordRef = useRef()
+
+    const onAutoFillClick = () => setGrid(fill(grid))
+    const onResetClick = () => crosswordRef.current.reset()
+
     return (
-        <>
-            <div className="App">
-                <h1>This is 🥐</h1>
-                <Crossword ref={crosswordRef} data={grid}/>
-                <div className="button-container">
-                    <button className="btn btn-primary btn-lg"
-                            onClick={async () => setGrid(await filled(grid))}>
-                        Auto-fill 🪄
-                    </button>
-                    <button className="btn btn-danger btn-lg" onClick={() => crosswordRef.current.reset()}>
-                        Reset
-                    </button>
-                </div>
+        <div className="App">
+            <h1>This is 🥐</h1>
+            <Crossword ref={crosswordRef} data={grid}/>
+            <div className="button-container">
+                <button className="btn btn-primary btn-lg" onClick={onAutoFillClick}>Auto-fill 🪄</button>
+                <button className="btn btn-danger btn-lg" onClick={onResetClick}>Reset</button>
             </div>
-        </>
+        </div>
     );
 }
 
@@ -81,16 +79,12 @@ function initialData() {
     };
 }
 
-function filled({grid}) {
-    console.log("Asynchronous solving", grid)
-    return import("croissant-wasm")
-        .then((wasm) => wasm.solve(solverInputFrom(grid)))
-        .then(console.log)
-        .then((solverOutput) => gridFrom(solverOutput))
-        .catch(e => {
-            console.error("Error calling solver:", e)
-            return initialData()
-        })
+function fill({grid}) {
+    const solverInput = solverInputFrom(grid)
+    console.log("Solving", solverInput)
+    const solverOutput = solve(solverInput)
+    console.log("Solution", solverOutput)
+    return gridFrom(solverOutput)
 }
 
 function solverInputFrom(grid) {
@@ -102,5 +96,3 @@ function gridFrom(solverOutput) {
     // TODO implement
     return initialData()
 }
-
-export default App;
