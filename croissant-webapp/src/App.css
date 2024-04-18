@@ -1,22 +1,19 @@
 .App {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 25px;
-  margin: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+    margin: 50px;
 }
 
 .button-container {
-  display: flex;
-  gap: 10px;
+    display: flex;
+    gap: 10px;
 }
 
-/* Below, classes specific to jaredreisinger/react-crossword. */
-
-.crossword {
-  min-width: 300px;
-}
-
-.clues {
-  display: none;
+input {
+    border: solid thin;
+    height: 1em;
+    width: 1em;
+    text-align: center;
 }
