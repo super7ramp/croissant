@@ -29,7 +29,7 @@ impl Variables {
         Variables { grid, word_count }
     }
 
-    /// Returns the variable associated to the given at the given cell.
+    /// Returns the variable associated to the given value at the given cell.
     ///
     /// Cell variables are put first in the model.
     ///
@@ -70,22 +70,22 @@ impl Variables {
     ///     <th>etc.</th>
     ///   </tr>
     /// </table>
-    pub fn cell(&self, row: usize, column: usize, value: usize) -> usize {
+    pub fn representing_cell(&self, row: usize, column: usize, value: usize) -> usize {
         row * self.grid.column_count() * CELL_VALUE_COUNT + column * CELL_VALUE_COUNT + value + 1
         // variable must be strictly positive
     }
 
-    /// Returns all the cell variables.
-    pub fn cells(&self) -> Vec<usize> {
-        Vec::from_iter(1..(self.cell_count() + 1))
+    /// Returns all the variables representing cells.
+    pub fn representing_cells(&self) -> Vec<usize> {
+        Vec::from_iter(1..(self.representing_cell_count() + 1))
     }
 
     /// Returns the variable associated to the given word at the given slot.
     ///
     /// Slot variable are put after cell variables, so first slot variable corresponds to the number
     /// of cell variables (plus 1 because variables start at 1).
-    pub fn slot(&self, slot_index: usize, word_index: usize) -> usize {
-        self.cell_count() // last cell variable
+    pub fn representing_slot(&self, slot_index: usize, word_index: usize) -> usize {
+        self.representing_cell_count() // last cell variable
             + slot_index * self.word_count
             + word_index
             + 1
@@ -99,7 +99,7 @@ impl Variables {
         for row in 0..row_count {
             for column in 0..column_count {
                 for value in 0..CELL_VALUE_COUNT {
-                    let variable = self.cell(row, column, value) - 1;
+                    let variable = self.representing_cell(row, column, value) - 1;
                     if model[variable] > 0 {
                         let character = match value {
                             BLOCK_INDEX => grid::BLOCK,
@@ -117,19 +117,19 @@ impl Variables {
         output_grid
     }
 
-    /// Returns the number of cell variables.
-    fn cell_count(&self) -> usize {
+    /// Returns the number of variables representing cells.
+    fn representing_cell_count(&self) -> usize {
         self.grid.column_count() * self.grid.row_count() * CELL_VALUE_COUNT
     }
 
-    /// Returns the number of slot variables.
-    fn slot_count(&self) -> usize {
+    /// Returns the number of variables representing slots.
+    fn representing_slot_count(&self) -> usize {
         self.grid.slot_count() * self.word_count
     }
 
     /// Returns the number of variables.
     pub fn count(&self) -> usize {
-        self.cell_count() + self.slot_count()
+        self.representing_cell_count() + self.representing_slot_count()
     }
 }
 
@@ -138,48 +138,48 @@ mod test {
     use super::*;
 
     #[test]
-    fn cell() {
+    fn representing_cell() {
         let grid = Grid::try_from("...\n...\n...").unwrap();
         let variables = Variables::new(grid, 100_000 /* does not matter here */);
 
-        assert_eq!(1, variables.cell(0, 0, 0));
-        assert_eq!(2, variables.cell(0, 0, 1));
-        assert_eq!(27, variables.cell(0, 0, 26));
+        assert_eq!(1, variables.representing_cell(0, 0, 0));
+        assert_eq!(2, variables.representing_cell(0, 0, 1));
+        assert_eq!(27, variables.representing_cell(0, 0, 26));
 
-        assert_eq!(28, variables.cell(0, 1, 0));
-        assert_eq!(29, variables.cell(0, 1, 1));
-        assert_eq!(54, variables.cell(0, 1, 26));
+        assert_eq!(28, variables.representing_cell(0, 1, 0));
+        assert_eq!(29, variables.representing_cell(0, 1, 1));
+        assert_eq!(54, variables.representing_cell(0, 1, 26));
 
-        assert_eq!(243, variables.cell(2, 2, 26))
+        assert_eq!(243, variables.representing_cell(2, 2, 26))
     }
 
     #[test]
-    fn slot() {
+    fn representing_slot() {
         let grid = Grid::try_from("...\n...\n...").unwrap();
         let variables = Variables::new(grid, 100_000);
 
-        assert_eq!(244, variables.slot(0, 0));
-        assert_eq!(245, variables.slot(0, 1));
-        assert_eq!(100_243, variables.slot(0, 99_999));
+        assert_eq!(244, variables.representing_slot(0, 0));
+        assert_eq!(245, variables.representing_slot(0, 1));
+        assert_eq!(100_243, variables.representing_slot(0, 99_999));
 
-        assert_eq!(100_244, variables.slot(1, 0));
-        assert_eq!(100_245, variables.slot(1, 1));
+        assert_eq!(100_244, variables.representing_slot(1, 0));
+        assert_eq!(100_245, variables.representing_slot(1, 1));
 
-        assert_eq!(600_243, variables.slot(5, 99_999));
+        assert_eq!(600_243, variables.representing_slot(5, 99_999));
     }
 
     #[test]
-    fn cell_count() {
+    fn representing_cell_count() {
         let grid = Grid::try_from("...\n...\n...").unwrap();
         let variables = Variables::new(grid, 100_000 /* does not matter here */);
-        assert_eq!(243, variables.cell_count());
+        assert_eq!(243, variables.representing_cell_count());
     }
 
     #[test]
-    fn slot_count() {
+    fn representing_slot_count() {
         let grid = Grid::try_from("...\n...\n...").unwrap();
         let variables = Variables::new(grid, 100_000);
-        assert_eq!(600_000, variables.slot_count());
+        assert_eq!(600_000, variables.representing_slot_count());
     }
 
     #[test]

@@ -51,10 +51,12 @@ impl<'wordlist> Constraints<'wordlist> {
         for row in 0..self.grid.row_count() {
             for column in 0..self.grid.column_count() {
                 for letter_index in 0..alphabet::letter_count() {
-                    let letter_variable = self.variables.cell(row, column, letter_index) as i32;
+                    let letter_variable =
+                        self.variables.representing_cell(row, column, letter_index) as i32;
                     literals_buffer.push(letter_variable)
                 }
-                let block_variable = self.variables.cell(row, column, BLOCK_INDEX) as i32;
+                let block_variable =
+                    self.variables.representing_cell(row, column, BLOCK_INDEX) as i32;
                 literals_buffer.push(block_variable);
                 solver.add_exactly_one(&literals_buffer);
                 literals_buffer.clear();
@@ -70,7 +72,8 @@ impl<'wordlist> Constraints<'wordlist> {
         for (slot_index, slot) in self.grid.slots().iter().enumerate() {
             for (word_index, word) in self.words.iter().enumerate() {
                 if word.len() == slot.len() {
-                    let slot_literal = self.variables.slot(slot_index, word_index) as i32;
+                    let slot_literal =
+                        self.variables.representing_slot(slot_index, word_index) as i32;
                     slot_literals_buffer.push(slot_literal);
 
                     self.fill_cell_literals_conjunction(&mut cell_literals_buffer, slot, word);
@@ -97,9 +100,9 @@ impl<'wordlist> Constraints<'wordlist> {
         for (slot_pos, letter) in slot_positions.iter().zip(word.chars()) {
             let letter_index = alphabet::index_of(letter)
                 .unwrap_or_else(|| panic!("Unsupported character {letter}"));
-            let cell_var = self
-                .variables
-                .cell(slot_pos.row(), slot_pos.column(), letter_index);
+            let cell_var =
+                self.variables
+                    .representing_cell(slot_pos.row(), slot_pos.column(), letter_index);
             cell_literals.push(cell_var as i32)
         }
     }
@@ -116,12 +119,14 @@ impl<'wordlist> Constraints<'wordlist> {
                 let literal = match prefilled_letter {
                     grid::EMPTY => {
                         // Disallow solver to create a block
-                        -(self.variables.cell(row, column, BLOCK_INDEX) as i32)
+                        -(self.variables.representing_cell(row, column, BLOCK_INDEX) as i32)
                     }
-                    grid::BLOCK => self.variables.cell(row, column, BLOCK_INDEX) as i32,
+                    grid::BLOCK => {
+                        self.variables.representing_cell(row, column, BLOCK_INDEX) as i32
+                    }
                     _ => {
                         let letter_index = alphabet::index_of(prefilled_letter).unwrap();
-                        self.variables.cell(row, column, letter_index) as i32
+                        self.variables.representing_cell(row, column, letter_index) as i32
                     }
                 };
                 solver.add_clause(&[literal]);

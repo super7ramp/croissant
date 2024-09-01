@@ -97,7 +97,7 @@ impl<'wordlist> Crossword<'wordlist> {
     /// Adds clauses to the given solver configurator.
     fn add_clauses_to(&self, solver_configurator: &mut dyn SolverConfigurator) {
         solver_configurator.allocate_variables(self.variables.count());
-        solver_configurator.set_relevant_variables(self.variables.cells());
+        solver_configurator.set_relevant_variables(self.variables.representing_cells());
         self.constraints
             .add_one_letter_or_block_per_cell_clauses_to(solver_configurator);
         self.constraints
