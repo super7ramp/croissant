@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Setup Rust Nightly (for trait upcasting coercion)
-      uses: actions-rs/toolchain@v1.0.6
+      uses: actions-rs/toolchain@v1.0.7
       with:
         toolchain: nightly
         default: true
