@@ -10,5 +10,8 @@ updates:
       interval: "weekly"
   - package-ecosystem: "npm"
     directory: "/croissant-webapp"
+    ignore:
+      # dependabot seems not to support path-based dependencies
+      - dependency-name: "croissant-wasm"
     schedule:
       interval: "weekly"
