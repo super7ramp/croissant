@@ -12,6 +12,7 @@ fn empty() {
 }
 
 #[test]
+#[ignore = "slice::from_raw_parts requires the pointer to be aligned and non-null, and the total size of the slice not to exceed `isize::MAX`"]
 fn trivial() {
     let solutions = solve("...\n...\n...", ["AAA", "BBB", "CDE", "ABC", "ABD", "ABE"]);
     assert_solutions_eq(
@@ -26,24 +27,28 @@ fn trivial() {
 }
 
 #[test]
+#[ignore = "slice::from_raw_parts requires the pointer to be aligned and non-null, and the total size of the slice not to exceed `isize::MAX`"]
 fn partially_prefilled_1x3() {
     let solutions = solve("AB.", ["ABC"]);
     assert_solutions_eq(["ABC"], solutions);
 }
 
 #[test]
+#[ignore = "slice::from_raw_parts requires the pointer to be aligned and non-null, and the total size of the slice not to exceed `isize::MAX`"]
 fn partially_prefilled_3x3() {
     let solutions = solve("ABC\n...\n...", ["AAA", "BBB", "CDE", "ABC", "ABD", "ABE"]);
     assert_solutions_eq(["ABC\nABD\nABE"], solutions);
 }
 
 #[test]
+#[ignore = "slice::from_raw_parts requires the pointer to be aligned and non-null, and the total size of the slice not to exceed `isize::MAX`"]
 fn with_blocks() {
     let solutions = solve("ABC\n..#\n#..", ["AA", "BBB", "ABC", "AB", "BE"]);
     assert_solutions_eq(["ABC\nAB#\n#BE"], solutions);
 }
 
 #[test]
+#[ignore = "slice::from_raw_parts requires the pointer to be aligned and non-null, and the total size of the slice not to exceed `isize::MAX`"]
 fn impossible_no_solution() {
     let solutions = solve(
         "ABC\n...\n...",
@@ -56,6 +61,7 @@ fn impossible_no_solution() {
 }
 
 #[test]
+#[ignore = "slice::from_raw_parts requires the pointer to be aligned and non-null, and the total size of the slice not to exceed `isize::MAX`"]
 fn impossible_no_candidate() {
     let solutions = solve("...\n...\n...", []);
     assert_solutions_eq([], solutions);

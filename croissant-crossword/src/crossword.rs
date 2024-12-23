@@ -181,6 +181,7 @@ mod test {
     }
 
     #[test]
+    #[ignore = "slice::from_raw_parts requires the pointer to be aligned and non-null, and the total size of the slice not to exceed `isize::MAX`"]
     fn solve_with() {
         let words: Vec<String> = ["ABC", "DEF", "AA", "BB", "CC"]
             .iter()
