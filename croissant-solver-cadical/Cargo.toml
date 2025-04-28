@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 croissant-solver = { path = "../croissant-solver", version = "0.1.0" }
-cadical = "0.1.15"
+cadical = "0.1.16"
 
 [dev-dependencies]
 croissant-crossword = { path = "../croissant-crossword", version = "0.1.0" }
