@@ -16,11 +16,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Setup Rust Nightly (for trait upcasting coercion)
-      uses: actions-rs/toolchain@v1.0.7
-      with:
-        toolchain: nightly
-        default: true
     - name: Build
       run: cargo build --verbose
     - name: Run tests
