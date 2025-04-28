@@ -1,5 +1,3 @@
-#![feature(trait_upcasting)]
-
 //! # A crossword, defined as a boolean satisfiability problem
 //!
 //! This crate provides a library to transform a crossword problem – defined by a grid and a list of words –
