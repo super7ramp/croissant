@@ -10,7 +10,7 @@ This is unusable.
 
 ### Play
 
-First, install [Rust](https://rustup.rs/) – you'll need the nightly toolchain.
+First, install [Rust](https://rustup.rs/).
 
 Then try this out:
 
@@ -85,6 +85,9 @@ Enjoy!
 
 If you're looking for a fast crossword solver in Rust, check out [xwords-rs](https://github.com/szunami/xwords-rs).
 
-If you're looking for another SAT-based crossword solver, check out [Croiseur](https://github.com/super7ramp/croiseur)
-and its [SAT solver plugin](https://github.com/super7ramp/croiseur/tree/master/croiseur-solver/croiseur-solver-sat).
-It's in Java.
+If you're looking for another SAT-based crossword solver, check out:
+
+- [Croiseur](https://github.com/super7ramp/croiseur)
+  and its [SAT solver plugin](https://github.com/super7ramp/croiseur/tree/master/croiseur-solver/croiseur-solver-sat).
+  It's written in Java.
+- [crogo](https://github.com/super7ramp/crogo): It's written in Go.
